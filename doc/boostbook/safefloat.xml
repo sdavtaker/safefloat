@@ -1,0 +1,205 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE library PUBLIC "-//Boost//DTD BoostBook XML V1.1//EN"
+"http://www.boost.org/tools/boostbook/dtd/boostbook.dtd">
+<library dirname="safefloat" id="safefloat" last-revision="$Date: 2015-02-09$"
+         name="SafeFloat" url="https://github.com/sdavtaker/safefloat">
+  <title><libraryname
+  last-revision="2015-02-09">SafeFloat</libraryname></title>
+
+  <libraryinfo>
+    <author>
+      <firstname>Damián</firstname>
+
+      <surname>Vicino</surname>
+    </author>
+
+    <copyright>
+      <year>2015</year>
+
+      <holder>Damián Vicino</holder>
+    </copyright>
+
+    <legalnotice>
+      <para><ulink url="http://www.boost.org/users/license.html">BOOST
+      License</ulink></para>
+    </legalnotice>
+
+    <librarypurpose>Safe Floating Point Operation</librarypurpose>
+
+    <librarycategory name="">Numerics</librarycategory>
+  </libraryinfo>
+
+  <section id="safefloat.introduction">
+    <title>Introduction</title>
+
+    <section>
+      <title>Motivation</title>
+
+      <para>Why safe-float?.</para>
+
+      <para>Goldberg's list of problems.</para>
+    </section>
+
+    <section>
+      <title>Goals</title>
+
+      <para><itemizedlist>
+          <listitem>
+            <para>Provide ...</para>
+          </listitem>
+        </itemizedlist></para>
+    </section>
+
+    <section>
+      <title>Current state</title>
+
+      <para>Empty project.</para>
+    </section>
+  </section>
+
+  <section id="safefloat.tutorial">
+    <title>Tutorial</title>
+
+    <para>Example 1</para>
+
+    <programlisting>example code 1;</programlisting>
+
+    <para>Example 2</para>
+
+    <programlisting>example code 2;</programlisting>
+
+    <para>...</para>
+  </section>
+
+  <section id="safefloat.notes">
+    <title>Notes</title>
+
+    <para>SafeFloat is a headers-only library with few requirements:</para>
+
+    <para><itemizedlist>
+        <listitem>
+          <para>Library requires C++11.</para>
+        </listitem>
+      </itemizedlist></para>
+
+    <para><itemizedlist>
+        <listitem>
+          <para>Building of examples and test can be done running b2.</para>
+        </listitem>
+      </itemizedlist></para>
+
+    <itemizedlist>
+      <listitem>
+        <para>Current implementation supports only double as internal Floating
+        Point implementation.</para>
+      </listitem>
+    </itemizedlist>
+
+    <itemizedlist>
+      <listitem>
+        <para>Examples have some extra dependencies, including
+        Boost.ProgramOptions.</para>
+      </listitem>
+    </itemizedlist>
+
+    <itemizedlist>
+      <listitem>
+        <para>Tests are implemented using Boost.Test and require the compiled
+        version to run, also they depend in Boost.Any and
+        Boost.Rational.</para>
+      </listitem>
+    </itemizedlist>
+  </section>
+
+  <section id="safefloat.concepts">
+    <title>Concepts</title>
+
+    <para>The architecture is based in policies.</para>
+
+    <section>
+      <title>SafeFloat class</title>
+
+      <para>The host class ...</para>
+    </section>
+
+    <section>
+      <title>Policy classes</title>
+
+      <para>Each policy has to enforce pre and post conditions, they are
+      represented as follows...</para>
+
+      <para>The Policies implemented are the following...</para>
+    </section>
+  </section>
+
+  <section id="safefloat.types">
+    <title>Types</title>
+
+    <section>
+      <title>SafeFloat</title>
+
+      <para>This type is the base class for every formalism's model
+      classes.</para>
+    </section>
+  </section>
+
+  <section id="safefloat.functions">
+    <title>Functions</title>
+
+    <para>Helper functions are defined ...</para>
+
+    <programlisting>Functions code ;</programlisting>
+
+    <para/>
+  </section>
+
+  <section id="safefloat.exceptionsafety">
+    <title>Exception safety</title>
+
+    <para>This library covers ...</para>
+
+    <para/>
+  </section>
+
+  <section id="safefloat.rationale">
+    <title>Rationale</title>
+
+    <qandaset>
+      <qandaentry>
+        <question>
+          <para/>
+        </question>
+
+        <answer>
+          <para/>
+        </answer>
+      </qandaentry>
+    </qandaset>
+  </section>
+
+  <section id="safefloat.changelog">
+    <title>Change Log</title>
+
+    <para/>
+  </section>
+
+  <section id="safefloat.references">
+    <title>References</title>
+
+    <para/>
+
+    <itemizedlist>
+      <listitem>
+        <para>[1] Goldberg, David. "What every computer scientist should know
+        about floating-point arithmetic." ACM Computing Surveys (CSUR) 23.1
+        (1991): 5-48.</para>
+      </listitem>
+    </itemizedlist>
+
+    <para><itemizedlist>
+        <listitem>
+          <para>[2]</para>
+        </listitem>
+      </itemizedlist></para>
+  </section>
+</library>

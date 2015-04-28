@@ -26,3 +26,9 @@
 *.exe
 *.out
 *.app
+
+#build
+build
+doc/html/*.html
+doc/html/pre-boost.jpg
+doc/boostbook/HTML.manifest

@@ -1,0 +1,8 @@
+project exaremple
+    : requirements
+        <include>../include
+;
+
+
+exe overflow : example-overflow.cpp ;
+exe underflow : example-underflow.cpp ;
