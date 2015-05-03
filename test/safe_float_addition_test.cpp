@@ -36,10 +36,9 @@
 #include <boost/mpl/list.hpp>
 
 
+#include <cmath>
 #include <boost/safe_float.hpp>
 #include <boost/safe_float/convenience.hpp>
-
-#include <cmath>
 
 //types to be tested
 using test_types=boost::mpl::list<
@@ -54,7 +53,7 @@ using namespace boost::safe_float;
 
 BOOST_AUTO_TEST_SUITE( safe_float_addition_test_suite )
 BOOST_AUTO_TEST_SUITE( safe_float_addition_overflow_test_suite )
-//generators
+
 BOOST_AUTO_TEST_CASE_TEMPLATE( safe_float_addition_throws_on_overflow, FPT, test_types){
     // define two FPT numbers suppose to overflow
     FPT a = std::numeric_limits<FPT>::max();
