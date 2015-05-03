@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE library PUBLIC "-//Boost//DTD BoostBook XML V1.1//EN"
 "http://www.boost.org/tools/boostbook/dtd/boostbook.dtd">
-<library dirname="safefloat" id="safefloat" last-revision="$Date: 2015-02-09$"
-         name="SafeFloat" url="https://github.com/sdavtaker/safefloat">
+<library dirname="safe_float" id="safe_float"
+         last-revision="$Date: 2015-02-09$" name="safe_float"
+         url="https://github.com/sdavtaker/safe_float">
   <title><libraryname
-  last-revision="2015-02-09">SafeFloat</libraryname></title>
+  last-revision="2015-02-09">safe_float</libraryname></title>
 
   <libraryinfo>
     <author>
@@ -29,7 +30,7 @@
     <librarycategory name="">Numerics</librarycategory>
   </libraryinfo>
 
-  <section id="safefloat.introduction">
+  <section id="safe_float.introduction">
     <title>Introduction</title>
 
     <section>
@@ -40,9 +41,9 @@
       may produce an infinite value. Safe Float proposes implementing a
       drop-in replacement for floating point numeric data types guaranteing
       that, when used in expressions in a C++ program, no incorrect arithmetic
-      results will be produced without the developer awareness. </para>
+      results will be produced without the developer awareness.</para>
 
-      <para>An example of the problem: </para>
+      <para>An example of the problem:</para>
 
       <programlisting>#include &lt;iostream&gt;
 #include &lt;limits&gt;
@@ -69,7 +70,7 @@ return 0;
       <para>In 1991, David Goldberg collected a list of the most common
       dangers when developing using Floating Point, which can be found on his
       paper: "What every computer scientist should know about floating-point
-      arithmetic". </para>
+      arithmetic".</para>
 
       <para>Most important dangers can be classified as follows:</para>
 
@@ -78,8 +79,8 @@ return 0;
             <para>Rounding error</para>
 
             <para>Some operations may require rounding the result. (i.e.
-            because the mantissa is not large enough to keep the result.)
-            </para>
+            because the mantissa is not large enough to keep the
+            result.)</para>
 
             <para>Definition error. (i.e. 0.3 is not expressible as Floating
             Point.)</para>
@@ -93,28 +94,28 @@ return 0;
             <para>Not a Number</para>
 
             <para>Some operations may produce Not a Number results, and they
-            are not detected until used (if signalling is on). </para>
+            are not detected until used (if signalling is on).</para>
           </listitem>
 
           <listitem>
-            <para> Infinity by overflow </para>
+            <para>Infinity by overflow</para>
 
             <para>Infinity arithmetic is useful mostly when infinity values
-            are defined by user, and not because of an overflow. </para>
+            are defined by user, and not because of an overflow.</para>
           </listitem>
 
           <listitem>
-            <para>Signed zero </para>
+            <para>Signed zero</para>
 
             <para>In some cases as discontinuous functions the negative zero
             have important use.</para>
           </listitem>
 
           <listitem>
-            <para> Underflow (considering and not considering normalised
+            <para>Underflow (considering and not considering normalised
             numbers as underflow)</para>
           </listitem>
-        </itemizedlist> </para>
+        </itemizedlist></para>
 
       <para>A real world example of the issue is the use of Floating Point in
       Discrete Event System Specification simulation to define the temporal
@@ -149,9 +150,9 @@ return 0;
 
       <para>Since, the reliability of the results is based on the algorithms
       used, we propose letting developers declare their concerns using
-      template parameters as policies. </para>
+      template parameters as policies.</para>
 
-      <para>We show some usage examples below for illustration. </para>
+      <para>We show some usage examples below for illustration.</para>
 
       <programlisting>//no underflow example
 
@@ -179,7 +180,7 @@ safe_numerics&lt;double, BSF_COMBINE(no_rounding,no_overflow_to_infinity)&gt; i 
 
 safe_numerics&lt;double, BSF_COMBINE(no_rounding-no_overflow_to_infinity)&gt; j = h + i; // throws because of overflow to infinity.</programlisting>
 
-      <para> </para>
+      <para/>
     </section>
 
     <section>
@@ -188,8 +189,7 @@ safe_numerics&lt;double, BSF_COMBINE(no_rounding-no_overflow_to_infinity)&gt; j 
       <para><itemizedlist>
           <listitem>
             <para>Provide a drop-in replacement for Floating Point data types
-            producing one of the following outcomes for each operation:
-            </para>
+            producing one of the following outcomes for each operation:</para>
 
             <para><itemizedlist>
                 <listitem>
@@ -210,7 +210,7 @@ safe_numerics&lt;double, BSF_COMBINE(no_rounding-no_overflow_to_infinity)&gt; j 
 
           <listitem>
             <para>The implementation should be flexible to let the user decide
-            what to check, how to inform and </para>
+            what to check, how to inform and</para>
           </listitem>
 
           <listitem>
@@ -227,7 +227,7 @@ safe_numerics&lt;double, BSF_COMBINE(no_rounding-no_overflow_to_infinity)&gt; j 
     </section>
   </section>
 
-  <section id="safefloat.tutorial">
+  <section id="safe_float.tutorial">
     <title>Tutorial</title>
 
     <para>In introduction, we showed an example of how overflow of adding two
@@ -252,11 +252,11 @@ return 0;
 
     <programlisting>#include &lt;iostream&gt;
 #include &lt;limits&gt;
-#include &lt;boost/safefloat.hpp&gt;
+#include &lt;boost/safe_float.hpp&gt;
 
 int main(){
 using namespace std;
-using namespace boost::safefloat;
+using namespace boost::safe_float;
 try {
     safe_float&lt;float,policy::no_overflow_on_addition&gt; a = numeric_limits&lt;float&gt;::max();
     safe_float&lt;float,policy::no_overflow_on_addition&gt; b = a + a;
@@ -279,20 +279,20 @@ return 0;
     several common use compositions under the convenience.hpp file and it is
     easy to introduce new checks for particular purposes if needed. The
     complete list of policies can be found in the Policies section of the
-    documentation. </para>
+    documentation.</para>
 
     <para>In some contexts, as real-time critical systems, the use of
     exceptions is restricted or fully deactivated. For this contexts, it is
-    useful to specify other error handling methods to be used. </para>
+    useful to specify other error handling methods to be used.</para>
 
     <para>The following is a example of how to use the library for asserting
     in place of throwing.<programlisting>#include &lt;iostream&gt;
 #include &lt;limits&gt;
-#include &lt;boost/safefloat.hpp&gt;
+#include &lt;boost/safe_float.hpp&gt;
 
 int main(){
 using namespace std;
-using namespace boost::safefloat;
+using namespace boost::safe_float;
 safe_float&lt;float,policy::no_overflow,policy::assert_on_fail&gt; a = numeric_limits&lt;float&gt;::max();
 safe_float&lt;float,policy::no_overflow,policy::assert_on_fail&gt; b = a + a;
 
@@ -313,11 +313,11 @@ return 0;
 
     <para><programlisting>#include &lt;iostream&gt;
 #include &lt;limits&gt;
-#include &lt;boost/safefloat.hpp&gt;
+#include &lt;boost/safe_float.hpp&gt;
 
 int main(){
 using namespace std;
-using namespace boost::safefloat;
+using namespace boost::safe_float;
 safe_float&lt;float,policy::no_overflow,policy::assert_on_fail,policy::accept_wrappedtype_params&gt; a = numeric_limits&lt;float&gt;::max();
 
 a += 3.14f; //ok because of accept_wrappedtype_params
@@ -326,10 +326,10 @@ return 0;
 }</programlisting></para>
   </section>
 
-  <section id="safefloat.notes">
+  <section id="safe_float.notes">
     <title>Notes</title>
 
-    <para>SafeFloat is a headers-only library with few requirements:</para>
+    <para>safe_float is a headers-only library with few requirements:</para>
 
     <para><itemizedlist>
         <listitem>
@@ -366,49 +366,401 @@ return 0;
     </itemizedlist>
   </section>
 
-  <section id="safefloat.concepts">
+  <section id="safe_float.concepts">
     <title>Concepts</title>
 
     <para>The architecture is based in policies.</para>
 
     <section>
-      <title>SafeFloat class</title>
+      <title>Policy classes</title>
 
-      <para>The host class ...</para>
+      <para>A policy is...</para>
+
+      <para>The library supports three kind of policies: CHECK, ERROR_HANDLING
+      and CAST.</para>
+
+      <itemizedlist>
+        <listitem>
+          <para>CHECK policies receive a template parameter with the wrapped
+          floating point data</para>
+
+          <para>type and implement the validations as pair of functions:
+          pre_operator_check and post_operator_check. Each operator calls the
+          pre and post checks defined. Post conditions are those doing the
+          actual validation, pre conditions are used to collect required
+          information for evaluating the post condition and setup of
+          flags.</para>
+        </listitem>
+
+        <listitem>
+          <para>ERROR_HANDLING policies define how the user would to be
+          notified in the case a CHECK fails. A single method is required from
+          these classes, report_failure.</para>
+        </listitem>
+
+        <listitem>
+          <para>CAST policies define will a safe_float play along with other
+          datatypes, for example it will tell if operations are allowed to
+          receive any parameter being the wrapped type in place of a
+          safe_float with exactly the same template parameters. Also, it tells
+          if safe_float can be casted to the wrapped type.</para>
+        </listitem>
+      </itemizedlist>
+    </section>
+  </section>
+
+  <section id="safe_float.types">
+    <title>Types</title>
+
+    <section>
+      <title>safe_float&lt;FP, CHECK, ERROR_HANDLING, CAST&gt;</title>
+
+      <para>This type is the safe_float core, it wraps a FP flaoting point
+      data type. Every operation over this datatype is checked using the CHECK
+      policy. When a check fails, it is reported to the user following the
+      ERROR_HANDLING policy. If a cast is required by any operation, it should
+      be enabled by CAST policy.</para>
     </section>
 
     <section>
       <title>Policy classes</title>
 
-      <para>Each policy has to enforce pre and post conditions, they are
-      represented as follows...</para>
+      <para>A long set of instances for each policy is provided with the
+      safe_float library. </para>
 
-      <para>The Policies implemented are the following...</para>
+      <section>
+        <title>CHECK Policy classes</title>
+
+        <para>CHECK policies define the conditions to be evaluated when
+        operating.</para>
+
+        <para>The table shows how the policies defined in the library interact
+        with each operation and danger.</para>
+
+        <table>
+          <title>Table of CHECK policies</title>
+
+          <tgroup cols="4">
+            <thead>
+              <row>
+                <entry>Property</entry>
+
+                <entry>Operation</entry>
+
+                <entry>Policy</entry>
+
+                <entry>Example case</entry>
+              </row>
+            </thead>
+
+            <tbody>
+              <row>
+                <entry>Overflow</entry>
+
+                <entry>Addition</entry>
+
+                <entry>check_addition_overflow</entry>
+
+                <entry>max() + max()</entry>
+              </row>
+
+              <row>
+                <entry>Overflow</entry>
+
+                <entry>Subtraction</entry>
+
+                <entry>check_subtraction_overflow</entry>
+
+                <entry>lowest() - max()</entry>
+              </row>
+
+              <row>
+                <entry>Overflow</entry>
+
+                <entry>Multiplication</entry>
+
+                <entry>check_multiplication_overflow</entry>
+
+                <entry>max() * max()</entry>
+              </row>
+
+              <row>
+                <entry>Overflow</entry>
+
+                <entry>Division</entry>
+
+                <entry>check_division_overflow</entry>
+
+                <entry>max() / min()</entry>
+              </row>
+
+              <row>
+                <entry>Inexact Rounding</entry>
+
+                <entry>Addition</entry>
+
+                <entry>check_addition_inexact_rounding</entry>
+
+                <entry>lowest() + min()</entry>
+              </row>
+
+              <row>
+                <entry>Inexact Rounding</entry>
+
+                <entry>Subtraction</entry>
+
+                <entry>check_subtraction_inexact_rounding</entry>
+
+                <entry>max() - lowest()</entry>
+              </row>
+
+              <row>
+                <entry>Inexact Rounding</entry>
+
+                <entry>Multiplication</entry>
+
+                <entry>check_multiplication_inexact_rounding</entry>
+
+                <entry/>
+              </row>
+
+              <row>
+                <entry>Inexact Rounding</entry>
+
+                <entry>Division</entry>
+
+                <entry>check_division_inexact_rounding</entry>
+
+                <entry>1.0 / 10.0</entry>
+              </row>
+
+              <row>
+                <entry>Underflow</entry>
+
+                <entry>Addition</entry>
+
+                <entry>check_addition_underflow</entry>
+
+                <entry/>
+              </row>
+
+              <row>
+                <entry>Underflow</entry>
+
+                <entry>Subtraction</entry>
+
+                <entry>check_subtraction_underflow</entry>
+
+                <entry/>
+              </row>
+
+              <row>
+                <entry>Underflow</entry>
+
+                <entry>Multiplication</entry>
+
+                <entry>check_multiplication_underflow</entry>
+
+                <entry/>
+              </row>
+
+              <row>
+                <entry>Underflow</entry>
+
+                <entry>Division</entry>
+
+                <entry>check_division_underflow</entry>
+
+                <entry/>
+              </row>
+
+              <row>
+                <entry>Division by zero</entry>
+
+                <entry>Division</entry>
+
+                <entry>check_division_by_zero</entry>
+
+                <entry>1.0/0.0</entry>
+              </row>
+
+              <row>
+                <entry>Invalid Result (NAN)</entry>
+
+                <entry>Addition</entry>
+
+                <entry>check_addition_nan</entry>
+
+                <entry/>
+              </row>
+
+              <row>
+                <entry>Invalid Result (NAN)</entry>
+
+                <entry>Subtraction</entry>
+
+                <entry>check_subtraction_nan</entry>
+
+                <entry/>
+              </row>
+
+              <row>
+                <entry>Invalid Result (NAN)</entry>
+
+                <entry>Multiplication</entry>
+
+                <entry>check_multiplication_nan</entry>
+
+                <entry/>
+              </row>
+
+              <row>
+                <entry>Invalid Result (NAN)</entry>
+
+                <entry>Division</entry>
+
+                <entry>check_division_nan</entry>
+
+                <entry/>
+              </row>
+            </tbody>
+          </tgroup>
+        </table>
+
+        <para>The policies can be combined defining classes that inherit from
+        other policies. This requires some glue code in the case the policies
+        combined are not 100% orthogonal.</para>
+
+        <para>The following is a table of convenient combined policies already
+        available in the library and their components.</para>
+
+        <table>
+          <title>Table of CHECK composed policies</title>
+
+          <tgroup cols="4">
+            <thead>
+              <row>
+                <entry>Property</entry>
+
+                <entry>Operation</entry>
+
+                <entry>Policy</entry>
+
+                <entry>Components</entry>
+              </row>
+            </thead>
+
+            <tbody>
+              <row>
+                <entry>Overflow</entry>
+
+                <entry>All Arithmetic</entry>
+
+                <entry>check_overflow</entry>
+
+                <entry>check_{addition,subtraction,multiplication,division}_overflow</entry>
+              </row>
+
+              <row>
+                <entry>Inexact Rounding</entry>
+
+                <entry>All Arithmetic</entry>
+
+                <entry>check_inexact_rounding</entry>
+
+                <entry>check_{addition,subtraction,multiplication,division}_inexact_rounding</entry>
+              </row>
+
+              <row>
+                <entry>Underflow</entry>
+
+                <entry>All Arithmetic</entry>
+
+                <entry>check_underflow</entry>
+
+                <entry>check_{addition,subtraction,multiplication,division}_underflow</entry>
+              </row>
+
+              <row>
+                <entry>Invalid Result</entry>
+
+                <entry>All Arithmetic</entry>
+
+                <entry>check_nan</entry>
+
+                <entry>check_{addition,subtraction,multiplication,division}_nan</entry>
+              </row>
+            </tbody>
+          </tgroup>
+        </table>
+
+        <para>Some of these policies can be handled with just using cfenv
+        flags, while others may require special tests to be developed in the
+        pre-post condition functions. </para>
+      </section>
+
+      <section>
+        <title>ERROR_HANDLING Policy classes</title>
+
+        <para>ERROR_HANDLING policies are focus in how a validation failure is
+        notified to the user. </para>
+
+        <para>Options are:</para>
+
+        <itemizedlist>
+          <listitem>
+            <para>on_fail_throw : Throws an safe_float_exception when the
+            checks fail.</para>
+          </listitem>
+
+          <listitem>
+            <para>on_fail_abort : Calls std::abort() when the check
+            fails.</para>
+          </listitem>
+
+          <listitem>
+            <para>on_fail_assert : Inserts an assert for each condition, it
+            makes safe the debuging only.</para>
+          </listitem>
+
+          <listitem>
+            <para>on_fail_log : This logs each error into a stream that needs
+            to be declared and silently continues its execution.</para>
+          </listitem>
+
+          <listitem>
+            <para>on_fail_cerr : This is a particular case of on_fail_log.
+            Here the log is output to stadard error.</para>
+          </listitem>
+        </itemizedlist>
+
+        <para>Extending the list of options is as easy as defining a class
+        with the method: void report_failure(std::string&amp; message);</para>
+      </section>
+
+      <section>
+        <title>CAST Policy classes</title>
+
+        <para>CAST policies define how the safe_float instance will play with
+        other data types. </para>
+
+        <para>Options</para>
+      </section>
     </section>
   </section>
 
-  <section id="safefloat.types">
-    <title>Types</title>
-
-    <section>
-      <title>SafeFloat</title>
-
-      <para>This type is the base class for every formalism's model
-      classes.</para>
-    </section>
-  </section>
-
-  <section id="safefloat.functions">
+  <section id="safe_float.functions">
     <title>Functions</title>
 
-    <para>Helper functions are defined ...</para>
+    <para>Helper functions are defined for common day-to-day operations.
+    </para>
 
     <programlisting>Functions code ;</programlisting>
 
     <para/>
   </section>
 
-  <section id="safefloat.exceptionsafety">
+  <section id="safe_float.exceptionsafety">
     <title>Exception safety</title>
 
     <para>This library covers ...</para>
@@ -416,7 +768,7 @@ return 0;
     <para/>
   </section>
 
-  <section id="safefloat.rationale">
+  <section id="safe_float.rationale">
     <title>Rationale</title>
 
     <qandaset>
@@ -432,13 +784,13 @@ return 0;
     </qandaset>
   </section>
 
-  <section id="safefloat.changelog">
+  <section id="safe_float.changelog">
     <title>Change Log</title>
 
     <para/>
   </section>
 
-  <section id="safefloat.references">
+  <section id="safe_float.references">
     <title>References</title>
 
     <para/>
