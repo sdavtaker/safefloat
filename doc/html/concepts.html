@@ -4,38 +4,50 @@
 <title>Concepts</title>
 <link rel="stylesheet" href="boostbook.css" type="text/css">
 <meta name="generator" content="DocBook XSL Stylesheets V1.76.1">
-<link rel="home" href="index.html" title="SafeFloat">
-<link rel="up" href="index.html" title="SafeFloat">
+<link rel="home" href="index.html" title="safe_float">
+<link rel="up" href="index.html" title="safe_float">
 <link rel="prev" href="notes.html" title="Notes">
 <link rel="next" href="types.html" title="Types">
 </head>
 <body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
 <table cellpadding="2" width="100%"><tr>
 <td valign="top"><img href="index.html" height="164px" src="pre-boost.jpg" alt="Library Documentation Index"></td>
-<td><h2>SafeFloat</h2></td>
+<td><h2>safe_float</h2></td>
 </tr></table>
 <div class="spirit-nav">
 <a accesskey="p" href="notes.html"><img src="images/prev.png" alt="Prev"></a><a accesskey="u" href="index.html"><img src="images/up.png" alt="Up"></a><a accesskey="h" href="index.html"><img src="images/home.png" alt="Home"></a><a accesskey="n" href="types.html"><img src="images/next.png" alt="Next"></a>
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h2 class="title" style="clear: both">
-<a name="safefloat.concepts"></a>Concepts</h2></div></div></div>
-<div class="toc"><dl>
-<dt><span class="section"><a href="concepts.html#idp140571277327776">SafeFloat class</a></span></dt>
-<dt><span class="section"><a href="concepts.html#idp140571277328928">Policy classes</a></span></dt>
-</dl></div>
+<a name="safe_float.concepts"></a>Concepts</h2></div></div></div>
+<div class="toc"><dl><dt><span class="section"><a href="concepts.html#idp140306933051920">Policy classes</a></span></dt></dl></div>
 <p>The architecture is based in policies.</p>
 <div class="section">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="idp140571277327776"></a>SafeFloat class</h3></div></div></div>
-<p>The host class ...</p>
-</div>
-<div class="section">
-<div class="titlepage"><div><div><h3 class="title">
-<a name="idp140571277328928"></a>Policy classes</h3></div></div></div>
-<p>Each policy has to enforce pre and post conditions, they are
-      represented as follows...</p>
-<p>The Policies implemented are the following...</p>
+<a name="idp140306933051920"></a>Policy classes</h3></div></div></div>
+<p>A policy is...</p>
+<p>The library supports three kind of policies: CHECK, ERROR_HANDLING
+      and CAST.</p>
+<div class="itemizedlist"><ul class="itemizedlist" type="disc">
+<li class="listitem">
+<p>CHECK policies receive a template parameter with the wrapped
+          floating point data</p>
+<p>type and implement the validations as pair of functions:
+          pre_operator_check and post_operator_check. Each operator calls the
+          pre and post checks defined. Post conditions are those doing the
+          actual validation, pre conditions are used to collect required
+          information for evaluating the post condition and setup of
+          flags.</p>
+</li>
+<li class="listitem"><p>ERROR_HANDLING policies define how the user would to be
+          notified in the case a CHECK fails. A single method is required from
+          these classes, report_failure.</p></li>
+<li class="listitem"><p>CAST policies define will a safe_float play along with other
+          datatypes, for example it will tell if operations are allowed to
+          receive any parameter being the wrapped type in place of a
+          safe_float with exactly the same template parameters. Also, it tells
+          if safe_float can be casted to the wrapped type.</p></li>
+</ul></div>
 </div>
 </div>
 <table xmlns:rev="http://www.cs.rpi.edu/~gregod/boost/tools/doc/revision" width="100%"><tr>

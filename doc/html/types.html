@@ -4,28 +4,248 @@
 <title>Types</title>
 <link rel="stylesheet" href="boostbook.css" type="text/css">
 <meta name="generator" content="DocBook XSL Stylesheets V1.76.1">
-<link rel="home" href="index.html" title="SafeFloat">
-<link rel="up" href="index.html" title="SafeFloat">
+<link rel="home" href="index.html" title="safe_float">
+<link rel="up" href="index.html" title="safe_float">
 <link rel="prev" href="concepts.html" title="Concepts">
 <link rel="next" href="functions.html" title="Functions">
 </head>
 <body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
 <table cellpadding="2" width="100%"><tr>
 <td valign="top"><img href="index.html" height="164px" src="pre-boost.jpg" alt="Library Documentation Index"></td>
-<td><h2>SafeFloat</h2></td>
+<td><h2>safe_float</h2></td>
 </tr></table>
 <div class="spirit-nav">
 <a accesskey="p" href="concepts.html"><img src="images/prev.png" alt="Prev"></a><a accesskey="u" href="index.html"><img src="images/up.png" alt="Up"></a><a accesskey="h" href="index.html"><img src="images/home.png" alt="Home"></a><a accesskey="n" href="functions.html"><img src="images/next.png" alt="Next"></a>
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h2 class="title" style="clear: both">
-<a name="safefloat.types"></a>Types</h2></div></div></div>
-<div class="toc"><dl><dt><span class="section"><a href="types.html#idp140571277331360">SafeFloat</a></span></dt></dl></div>
+<a name="safe_float.types"></a>Types</h2></div></div></div>
+<div class="toc"><dl>
+<dt><span class="section"><a href="types.html#idp140306933058624">safe_float&lt;FP, CHECK, ERROR_HANDLING, CAST&gt;</a></span></dt>
+<dt><span class="section"><a href="types.html#idp140306933060224">Policy classes</a></span></dt>
+</dl></div>
 <div class="section">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="idp140571277331360"></a>SafeFloat</h3></div></div></div>
-<p>This type is the base class for every formalism's model
-      classes.</p>
+<a name="idp140306933058624"></a>safe_float&lt;FP, CHECK, ERROR_HANDLING, CAST&gt;</h3></div></div></div>
+<p>This type is the safe_float core, it wraps a FP flaoting point
+      data type. Every operation over this datatype is checked using the CHECK
+      policy. When a check fails, it is reported to the user following the
+      ERROR_HANDLING policy. If a cast is required by any operation, it should
+      be enabled by CAST policy.</p>
+</div>
+<div class="section">
+<div class="titlepage"><div><div><h3 class="title">
+<a name="idp140306933060224"></a>Policy classes</h3></div></div></div>
+<p>A long set of instances for each policy is provided with the
+      safe_float library. </p>
+<div class="section">
+<div class="titlepage"><div><div><h4 class="title">
+<a name="idp140306933061344"></a>CHECK Policy classes</h4></div></div></div>
+<p>CHECK policies define the conditions to be evaluated when
+        operating.</p>
+<p>The table shows how the policies defined in the library interact
+        with each operation and danger.</p>
+<div class="table">
+<a name="idp140306933062944"></a><p class="title"><b>Table&#160;1.&#160;Table of CHECK policies</b></p>
+<div class="table-contents"><table class="table" summary="Table of CHECK policies">
+<colgroup>
+<col>
+<col>
+<col>
+<col>
+</colgroup>
+<thead><tr>
+<th>Property</th>
+<th>Operation</th>
+<th>Policy</th>
+<th>Example case</th>
+</tr></thead>
+<tbody>
+<tr>
+<td>Overflow</td>
+<td>Addition</td>
+<td>check_addition_overflow</td>
+<td>max() + max()</td>
+</tr>
+<tr>
+<td>Overflow</td>
+<td>Subtraction</td>
+<td>check_subtraction_overflow</td>
+<td>lowest() - max()</td>
+</tr>
+<tr>
+<td>Overflow</td>
+<td>Multiplication</td>
+<td>check_multiplication_overflow</td>
+<td>max() * max()</td>
+</tr>
+<tr>
+<td>Overflow</td>
+<td>Division</td>
+<td>check_division_overflow</td>
+<td>max() / min()</td>
+</tr>
+<tr>
+<td>Inexact Rounding</td>
+<td>Addition</td>
+<td>check_addition_inexact_rounding</td>
+<td>lowest() + min()</td>
+</tr>
+<tr>
+<td>Inexact Rounding</td>
+<td>Subtraction</td>
+<td>check_subtraction_inexact_rounding</td>
+<td>max() - lowest()</td>
+</tr>
+<tr>
+<td>Inexact Rounding</td>
+<td>Multiplication</td>
+<td>check_multiplication_inexact_rounding</td>
+<td>&#160;</td>
+</tr>
+<tr>
+<td>Inexact Rounding</td>
+<td>Division</td>
+<td>check_division_inexact_rounding</td>
+<td>1.0 / 10.0</td>
+</tr>
+<tr>
+<td>Underflow</td>
+<td>Addition</td>
+<td>check_addition_underflow</td>
+<td>&#160;</td>
+</tr>
+<tr>
+<td>Underflow</td>
+<td>Subtraction</td>
+<td>check_subtraction_underflow</td>
+<td>&#160;</td>
+</tr>
+<tr>
+<td>Underflow</td>
+<td>Multiplication</td>
+<td>check_multiplication_underflow</td>
+<td>&#160;</td>
+</tr>
+<tr>
+<td>Underflow</td>
+<td>Division</td>
+<td>check_division_underflow</td>
+<td>&#160;</td>
+</tr>
+<tr>
+<td>Division by zero</td>
+<td>Division</td>
+<td>check_division_by_zero</td>
+<td>1.0/0.0</td>
+</tr>
+<tr>
+<td>Invalid Result (NAN)</td>
+<td>Addition</td>
+<td>check_addition_nan</td>
+<td>&#160;</td>
+</tr>
+<tr>
+<td>Invalid Result (NAN)</td>
+<td>Subtraction</td>
+<td>check_subtraction_nan</td>
+<td>&#160;</td>
+</tr>
+<tr>
+<td>Invalid Result (NAN)</td>
+<td>Multiplication</td>
+<td>check_multiplication_nan</td>
+<td>&#160;</td>
+</tr>
+<tr>
+<td>Invalid Result (NAN)</td>
+<td>Division</td>
+<td>check_division_nan</td>
+<td>&#160;</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<br class="table-break"><p>The policies can be combined defining classes that inherit from
+        other policies. This requires some glue code in the case the policies
+        combined are not 100% orthogonal.</p>
+<p>The following is a table of convenient combined policies already
+        available in the library and their components.</p>
+<div class="table">
+<a name="idp140306933099584"></a><p class="title"><b>Table&#160;2.&#160;Table of CHECK composed policies</b></p>
+<div class="table-contents"><table class="table" summary="Table of CHECK composed policies">
+<colgroup>
+<col>
+<col>
+<col>
+<col>
+</colgroup>
+<thead><tr>
+<th>Property</th>
+<th>Operation</th>
+<th>Policy</th>
+<th>Components</th>
+</tr></thead>
+<tbody>
+<tr>
+<td>Overflow</td>
+<td>All Arithmetic</td>
+<td>check_overflow</td>
+<td>check_{addition,subtraction,multiplication,division}_overflow</td>
+</tr>
+<tr>
+<td>Inexact Rounding</td>
+<td>All Arithmetic</td>
+<td>check_inexact_rounding</td>
+<td>check_{addition,subtraction,multiplication,division}_inexact_rounding</td>
+</tr>
+<tr>
+<td>Underflow</td>
+<td>All Arithmetic</td>
+<td>check_underflow</td>
+<td>check_{addition,subtraction,multiplication,division}_underflow</td>
+</tr>
+<tr>
+<td>Invalid Result</td>
+<td>All Arithmetic</td>
+<td>check_nan</td>
+<td>check_{addition,subtraction,multiplication,division}_nan</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<br class="table-break"><p>Some of these policies can be handled with just using cfenv
+        flags, while others may require special tests to be developed in the
+        pre-post condition functions. </p>
+</div>
+<div class="section">
+<div class="titlepage"><div><div><h4 class="title">
+<a name="idp140306933112160"></a>ERROR_HANDLING Policy classes</h4></div></div></div>
+<p>ERROR_HANDLING policies are focus in how a validation failure is
+        notified to the user. </p>
+<p>Options are:</p>
+<div class="itemizedlist"><ul class="itemizedlist" type="disc">
+<li class="listitem"><p>on_fail_throw : Throws an safe_float_exception when the
+            checks fail.</p></li>
+<li class="listitem"><p>on_fail_abort : Calls std::abort() when the check
+            fails.</p></li>
+<li class="listitem"><p>on_fail_assert : Inserts an assert for each condition, it
+            makes safe the debuging only.</p></li>
+<li class="listitem"><p>on_fail_log : This logs each error into a stream that needs
+            to be declared and silently continues its execution.</p></li>
+<li class="listitem"><p>on_fail_cerr : This is a particular case of on_fail_log.
+            Here the log is output to stadard error.</p></li>
+</ul></div>
+<p>Extending the list of options is as easy as defining a class
+        with the method: void report_failure(std::string&amp; message);</p>
+</div>
+<div class="section">
+<div class="titlepage"><div><div><h4 class="title">
+<a name="idp140306933119168"></a>CAST Policy classes</h4></div></div></div>
+<p>CAST policies define how the safe_float instance will play with
+        other data types. </p>
+<p>Options</p>
+</div>
 </div>
 </div>
 <table xmlns:rev="http://www.cs.rpi.edu/~gregod/boost/tools/doc/revision" width="100%"><tr>
