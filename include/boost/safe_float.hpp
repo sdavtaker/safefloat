@@ -9,13 +9,13 @@ namespace policy {
 template <class T>
 class check_addition_overflow;
 
-class throw_on_fail;
+class on_fail_throw;
 class cast_none;
 }
 
 template<class FP,
          template <class T> class CHECK=policy::check_addition_overflow,
-         class ERROR_HANDLING=policy::throw_on_fail,
+         class ERROR_HANDLING=policy::on_fail_throw,
          class CAST=policy::cast_none>
 class safe_float : private CHECK<FP>, ERROR_HANDLING {
 FP number;

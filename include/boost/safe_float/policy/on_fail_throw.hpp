@@ -4,7 +4,7 @@ namespace boost {
 namespace safe_float{
 namespace policy{
 
-class throw_on_fail {
+class on_fail_throw {
 public:
     virtual void report_failure(){
         throw std::exception();
