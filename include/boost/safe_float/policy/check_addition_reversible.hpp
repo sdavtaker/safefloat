@@ -19,6 +19,10 @@ public:
         return (rhs - prev_r) == prev_l;
     }
 
+    virtual std::string addition_failure_message(){
+        return std::string("Non reversible addition applied");
+    }
+
 };
 
 }

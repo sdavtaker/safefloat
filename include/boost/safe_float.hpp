@@ -30,7 +30,7 @@ public:
      {
        this->pre_addition_check(number, rhs.number);
        number += rhs.number;
-       if (!this->post_addition_check(number)) this->report_failure();
+       if (!this->post_addition_check(number)) this->report_failure(this->addition_failure_message());
        return *this;
      }
 };
