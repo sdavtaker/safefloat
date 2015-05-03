@@ -55,7 +55,7 @@ BOOST_AUTO_TEST_SUITE( safe_float_addition_test_suite )
 BOOST_AUTO_TEST_SUITE( safe_float_addition_overflow_test_suite )
 
 BOOST_AUTO_TEST_CASE_TEMPLATE( safe_float_addition_throws_on_overflow, FPT, test_types){
-    // define two FPT numbers suppose to overflow
+    // define two FPT numbers suppose to positive overflow
     FPT a = std::numeric_limits<FPT>::max();
     FPT b = std::numeric_limits<FPT>::max();
     // check FPT overflows to inf after add
@@ -67,6 +67,20 @@ BOOST_AUTO_TEST_CASE_TEMPLATE( safe_float_addition_throws_on_overflow, FPT, test
 
     // check the addition throws
     BOOST_CHECK_THROW(c+d, std::exception);
+
+    // define two FPT numbers suppose to negative overflow
+    FPT e = std::numeric_limits<FPT>::lowest();
+    FPT f = std::numeric_limits<FPT>::lowest();
+    // check FPT overflows to inf after add
+    BOOST_CHECK(isinf(e+f));
+
+    // construct safe_float version of the same two numbers
+    safe_float<FPT, policy::check_addition_overflow> g(std::numeric_limits<FPT>::lowest());
+    safe_float<FPT, policy::check_addition_overflow> h(std::numeric_limits<FPT>::lowest());
+
+    // check the addition throws
+    BOOST_CHECK_THROW(g+h, std::exception);
+
 }
 
 BOOST_AUTO_TEST_CASE_TEMPLATE( safe_float_addition_reversible, FPT, test_types){
