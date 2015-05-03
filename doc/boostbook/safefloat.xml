@@ -35,9 +35,151 @@
     <section>
       <title>Motivation</title>
 
-      <para>Why safe-float?.</para>
+      <para>Arithmetic operations in C++ are NOT guaranteed to yield a correct
+      mathematical result. For instance, the overflow on addition operation
+      may produce an infinite value. Safe Float proposes implementing a
+      drop-in replacement for floating point numeric data types guaranteing
+      that, when used in expressions in a C++ program, no incorrect arithmetic
+      results will be produced without the developer awareness. </para>
 
-      <para>Goldberg's list of problems.</para>
+      <para>An example of the problem: </para>
+
+      <programlisting>#include &lt;iostream&gt;
+#include &lt;limits&gt;
+
+int main(){
+using namespace std;
+float a = numeric_limits&lt;float&gt;::max();
+float b = a + numeric_limits&lt;float&gt;::max();
+cout &lt;&lt; "b is " &lt;&lt; b &lt;&lt; endl;
+
+return 0;
+}</programlisting>
+
+      <para>Executing this code outputs:</para>
+
+      <programlisting>b is inf</programlisting>
+
+      <para>This is a convenient fallback for the overflow in some contexts,
+      but an unexpected silent surprise in others. Overflow to infinite is not
+      the only surprice silently introduced by floating point operations,
+      neither the most dangerous. it is actually the one most programmers care
+      to check.</para>
+
+      <para>In 1991, David Goldberg collected a list of the most common
+      dangers when developing using Floating Point, which can be found on his
+      paper: "What every computer scientist should know about floating-point
+      arithmetic". </para>
+
+      <para>Most important dangers can be classified as follows:</para>
+
+      <para><itemizedlist>
+          <listitem>
+            <para>Rounding error</para>
+
+            <para>Some operations may require rounding the result. (i.e.
+            because the mantissa is not large enough to keep the result.)
+            </para>
+
+            <para>Definition error. (i.e. 0.3 is not expressible as Floating
+            Point.)</para>
+
+            <para>An interesting side-effect of rounding is that operations
+            are not guaranteed to be reversible: a != a+b-b is a valid
+            result.</para>
+          </listitem>
+
+          <listitem>
+            <para>Not a Number</para>
+
+            <para>Some operations may produce Not a Number results, and they
+            are not detected until used (if signalling is on). </para>
+          </listitem>
+
+          <listitem>
+            <para> Infinity by overflow </para>
+
+            <para>Infinity arithmetic is useful mostly when infinity values
+            are defined by user, and not because of an overflow. </para>
+          </listitem>
+
+          <listitem>
+            <para>Signed zero </para>
+
+            <para>In some cases as discontinuous functions the negative zero
+            have important use.</para>
+          </listitem>
+
+          <listitem>
+            <para> Underflow (considering and not considering normalised
+            numbers as underflow)</para>
+          </listitem>
+        </itemizedlist> </para>
+
+      <para>A real world example of the issue is the use of Floating Point in
+      Discrete Event System Specification simulation to define the temporal
+      position of the events in a Real timeline. In this context, developers
+      intensively use Floating Point and they usually give a special meaning
+      to the infinite values called Passive state in the literature. In their
+      context, an infinite obtained as overflow operating with finite numbers
+      produces incorrect simulation result, because it silently changes the
+      state to passive when it should not.</para>
+
+      <para>In C++11 standard cfenv.h was introduced facilitating the access
+      to the Floating Point Unit flags for controlling and checking
+      information related to Floating Point operations. This allows us to have
+      a higher level of control than the one we had on traditional C++.</para>
+
+      <para>Anyway, developer intervention is required for checking every
+      Floating Point operation was conducted as expected. Doing so, renders
+      the code harder to read, maintain and it adds a new source of potential
+      programming errors.</para>
+
+      <para>Safe_float proposes the introduction of a class template wrapping
+      Floating Point data types introducing safety checks for arithmetic
+      operations. In the case an operation result is unreliable it reports the
+      user properly.</para>
+
+      <para>Depending on the algorithms implemented, different safety measures
+      may be required, in our previously described example with the use of
+      infinities for Discrete Event Simulation, the algorithms are not
+      sensitive to rounding and this should not be treated as a safety
+      problem, neither have a performance penalty based the unused
+      check.</para>
+
+      <para>Since, the reliability of the results is based on the algorithms
+      used, we propose letting developers declare their concerns using
+      template parameters as policies. </para>
+
+      <para>We show some usage examples below for illustration. </para>
+
+      <programlisting>//no underflow example
+
+safe_numerics&lt;double, no_underflow&gt; a = 1;
+
+safe_numerics&lt;double, no_underflow&gt; b = numeric_limits&lt;double&gt;::max();
+
+safe_numerics&lt;double, no_underflow&gt; c =  a / b ; //throws because of underflow.
+
+//no rounding example
+
+safe_numerics&lt;double, no_rounding&gt; d = 0.3; // compilation error, the number is not representable.
+
+safe_numerics&lt;double, no_rounding&gt; e = 2E25; 
+
+safe_numerics&lt;double, no_rounding&gt; f = 2E100;
+
+safe_numerics&lt;double, no_rounding&gt; g = e + f ; //throws because of operation rounding.
+
+//multiple conditions example
+
+safe_numerics&lt;double, BSF_COMBINE(no_rounding,no_overflow_to_infinity)&gt; h = numeric_limits&lt;double&gt;::max();
+
+safe_numerics&lt;double, BSF_COMBINE(no_rounding,no_overflow_to_infinity)&gt; i =  numeric_limits&lt;double&gt;::max();
+
+safe_numerics&lt;double, BSF_COMBINE(no_rounding-no_overflow_to_infinity)&gt; j = h + i; // throws because of overflow to infinity.</programlisting>
+
+      <para> </para>
     </section>
 
     <section>
@@ -45,7 +187,35 @@
 
       <para><itemizedlist>
           <listitem>
-            <para>Provide ...</para>
+            <para>Provide a drop-in replacement for Floating Point data types
+            producing one of the following outcomes for each operation:
+            </para>
+
+            <para><itemizedlist>
+                <listitem>
+                  <para>A valid result covering the user safety
+                  definition.</para>
+                </listitem>
+
+                <listitem>
+                  <para>A compilation error.</para>
+                </listitem>
+
+                <listitem>
+                  <para>An exception communicating a safety condition was not
+                  covered.</para>
+                </listitem>
+              </itemizedlist></para>
+          </listitem>
+
+          <listitem>
+            <para>The implementation should be flexible to let the user decide
+            what to check, how to inform and </para>
+          </listitem>
+
+          <listitem>
+            <para>Rules for deciding how to interact with other data types
+            need to be defined, for example enabling/disabling casts.</para>
           </listitem>
         </itemizedlist></para>
     </section>
@@ -53,22 +223,107 @@
     <section>
       <title>Current state</title>
 
-      <para>Empty project.</para>
+      <para>Safe float does nothing usefull yet.</para>
     </section>
   </section>
 
   <section id="safefloat.tutorial">
     <title>Tutorial</title>
 
-    <para>Example 1</para>
+    <para>In introduction, we showed an example of how overflow of adding two
+    non-infinite float variables produce an infinite result. We reproduce the
+    same example here for reference.</para>
 
-    <programlisting>example code 1;</programlisting>
+    <programlisting>#include &lt;iostream&gt;
+#include &lt;limits&gt;
 
-    <para>Example 2</para>
+int main(){
+using namespace std;
+float a = numeric_limits&lt;float&gt;::max();
+float b = a + numeric_limits&lt;float&gt;::max();
+cout &lt;&lt; "b is " &lt;&lt; b &lt;&lt; endl; //outputs: b is inf
 
-    <programlisting>example code 2;</programlisting>
+return 0;
+}</programlisting>
 
-    <para>...</para>
+    <para>If we replace the type used by both variables to
+    safe_float&lt;float, no_overflow_on_addition&gt;, the addition would have
+    throw an exception to inform the user.</para>
+
+    <programlisting>#include &lt;iostream&gt;
+#include &lt;limits&gt;
+#include &lt;boost/safefloat.hpp&gt;
+
+int main(){
+using namespace std;
+using namespace boost::safefloat;
+try {
+    safe_float&lt;float,policy::no_overflow_on_addition&gt; a = numeric_limits&lt;float&gt;::max();
+    safe_float&lt;float,policy::no_overflow_on_addition&gt; b = a + a;
+} catch { const boost::safe_float_exception&amp; e) { 
+    cout &lt;&lt; "safe_float required guarantees broken" &lt;&lt; endl;
+}    
+
+return 0;
+}</programlisting>
+
+    <para>Here the addition throws a safe_float exception informing the user
+    that one of the requirements was not covered by the operation result. It
+    is important to notice safe_float does nothing to fix this, the task of
+    the library is detect and inform only, user needs to handle the detected
+    problems.</para>
+
+    <para>The minimal granularity of a checking policies is checking one
+    operation for a single restriction. They can be composed for providing
+    more complex checks and affect more operations. The library includes
+    several common use compositions under the convenience.hpp file and it is
+    easy to introduce new checks for particular purposes if needed. The
+    complete list of policies can be found in the Policies section of the
+    documentation. </para>
+
+    <para>In some contexts, as real-time critical systems, the use of
+    exceptions is restricted or fully deactivated. For this contexts, it is
+    useful to specify other error handling methods to be used. </para>
+
+    <para>The following is a example of how to use the library for asserting
+    in place of throwing.<programlisting>#include &lt;iostream&gt;
+#include &lt;limits&gt;
+#include &lt;boost/safefloat.hpp&gt;
+
+int main(){
+using namespace std;
+using namespace boost::safefloat;
+safe_float&lt;float,policy::no_overflow,policy::assert_on_fail&gt; a = numeric_limits&lt;float&gt;::max();
+safe_float&lt;float,policy::no_overflow,policy::assert_on_fail&gt; b = a + a;
+
+return 0;
+}</programlisting></para>
+
+    <para>Here, assert will be used in place of throw aborting execution and
+    informing in debug mode, but having no impact at all in the release mode.
+    Other alternatives include abort_on_fail and log_on_fail.</para>
+
+    <para>Another template parameter available is the conversion policy, this
+    is responsable of deciding how the data type will play with others. The
+    default is not interacting with any other. In some cases, we would like to
+    accept the wrapped type as parameter of the operations.</para>
+
+    <para>The following is an example allowing addition-assigment with wrapped
+    type parameter.</para>
+
+    <para><programlisting>#include &lt;iostream&gt;
+#include &lt;limits&gt;
+#include &lt;boost/safefloat.hpp&gt;
+
+int main(){
+using namespace std;
+using namespace boost::safefloat;
+safe_float&lt;float,policy::no_overflow,policy::assert_on_fail,policy::accept_wrappedtype_params&gt; a = numeric_limits&lt;float&gt;::max();
+
+a += 3.14f; //ok because of accept_wrappedtype_params
+
+return 0;
+}</programlisting></para>
   </section>
 
   <section id="safefloat.notes">
