@@ -21,25 +21,157 @@
 <div class="titlepage"><div><div><h2 class="title" style="clear: both">
 <a name="safefloat.introduction"></a>Introduction</h2></div></div></div>
 <div class="toc"><dl>
-<dt><span class="section"><a href="introduction.html#idp140234579504720">Motivation</a></span></dt>
-<dt><span class="section"><a href="introduction.html#idp140234579506256">Goals</a></span></dt>
-<dt><span class="section"><a href="introduction.html#idp140234579508304">Current state</a></span></dt>
+<dt><span class="section"><a href="introduction.html#idp140571277282144">Motivation</a></span></dt>
+<dt><span class="section"><a href="introduction.html#idp140571277300608">Goals</a></span></dt>
+<dt><span class="section"><a href="introduction.html#idp140571277307168">Current state</a></span></dt>
 </dl></div>
 <div class="section">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="idp140234579504720"></a>Motivation</h3></div></div></div>
-<p>Why safe-float?.</p>
-<p>Goldberg's list of problems.</p>
+<a name="idp140571277282144"></a>Motivation</h3></div></div></div>
+<p>Arithmetic operations in C++ are NOT guaranteed to yield a correct
+      mathematical result. For instance, the overflow on addition operation
+      may produce an infinite value. Safe Float proposes implementing a
+      drop-in replacement for floating point numeric data types guaranteing
+      that, when used in expressions in a C++ program, no incorrect arithmetic
+      results will be produced without the developer awareness. </p>
+<p>An example of the problem: </p>
+<pre class="programlisting">#include &lt;iostream&gt;
+#include &lt;limits&gt;
+
+int main(){
+using namespace std;
+float a = numeric_limits&lt;float&gt;::max();
+float b = a + numeric_limits&lt;float&gt;::max();
+cout &lt;&lt; "b is " &lt;&lt; b &lt;&lt; endl;
+
+return 0;
+}</pre>
+<p>Executing this code outputs:</p>
+<pre class="programlisting">b is inf</pre>
+<p>This is a convenient fallback for the overflow in some contexts,
+      but an unexpected silent surprise in others. Overflow to infinite is not
+      the only surprice silently introduced by floating point operations,
+      neither the most dangerous. it is actually the one most programmers care
+      to check.</p>
+<p>In 1991, David Goldberg collected a list of the most common
+      dangers when developing using Floating Point, which can be found on his
+      paper: "What every computer scientist should know about floating-point
+      arithmetic". </p>
+<p>Most important dangers can be classified as follows:</p>
+<div class="itemizedlist"><ul class="itemizedlist" type="disc">
+<li class="listitem">
+<p>Rounding error</p>
+<p>Some operations may require rounding the result. (i.e.
+            because the mantissa is not large enough to keep the result.)
+            </p>
+<p>Definition error. (i.e. 0.3 is not expressible as Floating
+            Point.)</p>
+<p>An interesting side-effect of rounding is that operations
+            are not guaranteed to be reversible: a != a+b-b is a valid
+            result.</p>
+</li>
+<li class="listitem">
+<p>Not a Number</p>
+<p>Some operations may produce Not a Number results, and they
+            are not detected until used (if signalling is on). </p>
+</li>
+<li class="listitem">
+<p> Infinity by overflow </p>
+<p>Infinity arithmetic is useful mostly when infinity values
+            are defined by user, and not because of an overflow. </p>
+</li>
+<li class="listitem">
+<p>Signed zero </p>
+<p>In some cases as discontinuous functions the negative zero
+            have important use.</p>
+</li>
+<li class="listitem"><p> Underflow (considering and not considering normalised
+            numbers as underflow)</p></li>
+</ul></div>
+<p> </p>
+<p>A real world example of the issue is the use of Floating Point in
+      Discrete Event System Specification simulation to define the temporal
+      position of the events in a Real timeline. In this context, developers
+      intensively use Floating Point and they usually give a special meaning
+      to the infinite values called Passive state in the literature. In their
+      context, an infinite obtained as overflow operating with finite numbers
+      produces incorrect simulation result, because it silently changes the
+      state to passive when it should not.</p>
+<p>In C++11 standard cfenv.h was introduced facilitating the access
+      to the Floating Point Unit flags for controlling and checking
+      information related to Floating Point operations. This allows us to have
+      a higher level of control than the one we had on traditional C++.</p>
+<p>Anyway, developer intervention is required for checking every
+      Floating Point operation was conducted as expected. Doing so, renders
+      the code harder to read, maintain and it adds a new source of potential
+      programming errors.</p>
+<p>Safe_float proposes the introduction of a class template wrapping
+      Floating Point data types introducing safety checks for arithmetic
+      operations. In the case an operation result is unreliable it reports the
+      user properly.</p>
+<p>Depending on the algorithms implemented, different safety measures
+      may be required, in our previously described example with the use of
+      infinities for Discrete Event Simulation, the algorithms are not
+      sensitive to rounding and this should not be treated as a safety
+      problem, neither have a performance penalty based the unused
+      check.</p>
+<p>Since, the reliability of the results is based on the algorithms
+      used, we propose letting developers declare their concerns using
+      template parameters as policies. </p>
+<p>We show some usage examples below for illustration. </p>
+<pre class="programlisting">//no underflow example
+
+safe_numerics&lt;double, no_underflow&gt; a = 1;
+
+safe_numerics&lt;double, no_underflow&gt; b = numeric_limits&lt;double&gt;::max();
+
+safe_numerics&lt;double, no_underflow&gt; c =  a / b ; //throws because of underflow.
+
+//no rounding example
+
+safe_numerics&lt;double, no_rounding&gt; d = 0.3; // compilation error, the number is not representable.
+
+safe_numerics&lt;double, no_rounding&gt; e = 2E25; 
+
+safe_numerics&lt;double, no_rounding&gt; f = 2E100;
+
+safe_numerics&lt;double, no_rounding&gt; g = e + f ; //throws because of operation rounding.
+
+//multiple conditions example
+
+safe_numerics&lt;double, BSF_COMBINE(no_rounding,no_overflow_to_infinity)&gt; h = numeric_limits&lt;double&gt;::max();
+
+safe_numerics&lt;double, BSF_COMBINE(no_rounding,no_overflow_to_infinity)&gt; i =  numeric_limits&lt;double&gt;::max();
+
+safe_numerics&lt;double, BSF_COMBINE(no_rounding-no_overflow_to_infinity)&gt; j = h + i; // throws because of overflow to infinity.</pre>
+<p> </p>
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="idp140234579506256"></a>Goals</h3></div></div></div>
-<div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p>Provide ...</p></li></ul></div>
+<a name="idp140571277300608"></a>Goals</h3></div></div></div>
+<div class="itemizedlist"><ul class="itemizedlist" type="disc">
+<li class="listitem">
+<p>Provide a drop-in replacement for Floating Point data types
+            producing one of the following outcomes for each operation:
+            </p>
+<div class="itemizedlist"><ul class="itemizedlist" type="circle">
+<li class="listitem"><p>A valid result covering the user safety
+                  definition.</p></li>
+<li class="listitem"><p>A compilation error.</p></li>
+<li class="listitem"><p>An exception communicating a safety condition was not
+                  covered.</p></li>
+</ul></div>
+</li>
+<li class="listitem"><p>The implementation should be flexible to let the user decide
+            what to check, how to inform and </p></li>
+<li class="listitem"><p>Rules for deciding how to interact with other data types
+            need to be defined, for example enabling/disabling casts.</p></li>
+</ul></div>
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="idp140234579508304"></a>Current state</h3></div></div></div>
-<p>Empty project.</p>
+<a name="idp140571277307168"></a>Current state</h3></div></div></div>
+<p>Safe float does nothing usefull yet.</p>
 </div>
 </div>
 <table xmlns:rev="http://www.cs.rpi.edu/~gregod/boost/tools/doc/revision" width="100%"><tr>
