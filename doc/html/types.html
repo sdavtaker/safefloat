@@ -21,12 +21,12 @@
 <div class="titlepage"><div><div><h2 class="title" style="clear: both">
 <a name="safe_float.types"></a>Types</h2></div></div></div>
 <div class="toc"><dl>
-<dt><span class="section"><a href="types.html#idp140306933058624">safe_float&lt;FP, CHECK, ERROR_HANDLING, CAST&gt;</a></span></dt>
-<dt><span class="section"><a href="types.html#idp140306933060224">Policy classes</a></span></dt>
+<dt><span class="section"><a href="types.html#idp140659880462800">safe_float&lt;FP, CHECK, ERROR_HANDLING, CAST&gt;</a></span></dt>
+<dt><span class="section"><a href="types.html#idp140659880464400">Policy classes</a></span></dt>
 </dl></div>
 <div class="section">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="idp140306933058624"></a>safe_float&lt;FP, CHECK, ERROR_HANDLING, CAST&gt;</h3></div></div></div>
+<a name="idp140659880462800"></a>safe_float&lt;FP, CHECK, ERROR_HANDLING, CAST&gt;</h3></div></div></div>
 <p>This type is the safe_float core, it wraps a FP flaoting point
       data type. Every operation over this datatype is checked using the CHECK
       policy. When a check fails, it is reported to the user following the
@@ -35,18 +35,18 @@
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="idp140306933060224"></a>Policy classes</h3></div></div></div>
+<a name="idp140659880464400"></a>Policy classes</h3></div></div></div>
 <p>A long set of instances for each policy is provided with the
-      safe_float library. </p>
+      safe_float library.</p>
 <div class="section">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="idp140306933061344"></a>CHECK Policy classes</h4></div></div></div>
+<a name="idp140659880465520"></a>CHECK Policy classes</h4></div></div></div>
 <p>CHECK policies define the conditions to be evaluated when
         operating.</p>
 <p>The table shows how the policies defined in the library interact
         with each operation and danger.</p>
 <div class="table">
-<a name="idp140306933062944"></a><p class="title"><b>Table&#160;1.&#160;Table of CHECK policies</b></p>
+<a name="idp140659880467120"></a><p class="title"><b>Table&#160;1.&#160;Table of CHECK policies</b></p>
 <div class="table-contents"><table class="table" summary="Table of CHECK policies">
 <colgroup>
 <col>
@@ -172,7 +172,7 @@
 <p>The following is a table of convenient combined policies already
         available in the library and their components.</p>
 <div class="table">
-<a name="idp140306933099584"></a><p class="title"><b>Table&#160;2.&#160;Table of CHECK composed policies</b></p>
+<a name="idp140659880503760"></a><p class="title"><b>Table&#160;2.&#160;Table of CHECK composed policies</b></p>
 <div class="table-contents"><table class="table" summary="Table of CHECK composed policies">
 <colgroup>
 <col>
@@ -211,18 +211,30 @@
 <td>check_nan</td>
 <td>check_{addition,subtraction,multiplication,division}_nan</td>
 </tr>
+<tr>
+<td>Bothflows</td>
+<td>All arithmetic</td>
+<td>check_bothflows</td>
+<td>check_{under,over}_flow</td>
+</tr>
+<tr>
+<td>All</td>
+<td>All arithmetic</td>
+<td>check_all</td>
+<td>check_{bothflow,division_by_zero,inexact_rounding,nan}</td>
+</tr>
 </tbody>
 </table></div>
 </div>
 <br class="table-break"><p>Some of these policies can be handled with just using cfenv
         flags, while others may require special tests to be developed in the
-        pre-post condition functions. </p>
+        pre-post condition functions.</p>
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="idp140306933112160"></a>ERROR_HANDLING Policy classes</h4></div></div></div>
+<a name="idp140659880520368"></a>ERROR_HANDLING Policy classes</h4></div></div></div>
 <p>ERROR_HANDLING policies are focus in how a validation failure is
-        notified to the user. </p>
+        notified to the user.</p>
 <p>Options are:</p>
 <div class="itemizedlist"><ul class="itemizedlist" type="disc">
 <li class="listitem"><p>on_fail_throw : Throws an safe_float_exception when the
@@ -241,10 +253,19 @@
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="idp140306933119168"></a>CAST Policy classes</h4></div></div></div>
+<a name="idp140659880527376"></a>CAST Policy classes</h4></div></div></div>
 <p>CAST policies define how the safe_float instance will play with
-        other data types. </p>
-<p>Options</p>
+        other data types.</p>
+<p>Options implemented by the library are:
+        cast_wrapped_type_params, cast_to_wrapped_type, cast_both_ways,
+        no_cast.</p>
+<p>In cast_wrapped_type_params, if a operation is called with a
+        parameter of wrapped type, it is casted to safe_float and used.</p>
+<p>In cast_to_wrapped_type, a cast overload is defined to cast the
+        safe_float to its wrapped type.</p>
+<p>In cast_both_ways, both of previous casts are
+        implemented.</p>
+<p>In no_cast, nothing is casted.</p>
 </div>
 </div>
 </div>
