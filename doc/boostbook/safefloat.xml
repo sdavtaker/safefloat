@@ -426,7 +426,7 @@ return 0;
       <title>Policy classes</title>
 
       <para>A long set of instances for each policy is provided with the
-      safe_float library. </para>
+      safe_float library.</para>
 
       <section>
         <title>CHECK Policy classes</title>
@@ -690,20 +690,40 @@ return 0;
 
                 <entry>check_{addition,subtraction,multiplication,division}_nan</entry>
               </row>
+
+              <row>
+                <entry>Bothflows</entry>
+
+                <entry>All arithmetic</entry>
+
+                <entry>check_bothflows</entry>
+
+                <entry>check_{under,over}_flow</entry>
+              </row>
+
+              <row>
+                <entry>All</entry>
+
+                <entry>All arithmetic</entry>
+
+                <entry>check_all</entry>
+
+                <entry>check_{bothflow,division_by_zero,inexact_rounding,nan}</entry>
+              </row>
             </tbody>
           </tgroup>
         </table>
 
         <para>Some of these policies can be handled with just using cfenv
         flags, while others may require special tests to be developed in the
-        pre-post condition functions. </para>
+        pre-post condition functions.</para>
       </section>
 
       <section>
         <title>ERROR_HANDLING Policy classes</title>
 
         <para>ERROR_HANDLING policies are focus in how a validation failure is
-        notified to the user. </para>
+        notified to the user.</para>
 
         <para>Options are:</para>
 
@@ -742,9 +762,22 @@ return 0;
         <title>CAST Policy classes</title>
 
         <para>CAST policies define how the safe_float instance will play with
-        other data types. </para>
+        other data types.</para>
 
-        <para>Options</para>
+        <para>Options implemented by the library are:
+        cast_wrapped_type_params, cast_to_wrapped_type, cast_both_ways,
+        no_cast.</para>
+
+        <para>In cast_wrapped_type_params, if a operation is called with a
+        parameter of wrapped type, it is casted to safe_float and used.</para>
+
+        <para>In cast_to_wrapped_type, a cast overload is defined to cast the
+        safe_float to its wrapped type.</para>
+
+        <para>In cast_both_ways, both of previous casts are
+        implemented.</para>
+
+        <para>In no_cast, nothing is casted.</para>
       </section>
     </section>
   </section>
@@ -752,8 +785,10 @@ return 0;
   <section id="safe_float.functions">
     <title>Functions</title>
 
-    <para>Helper functions are defined for common day-to-day operations.
-    </para>
+    <para>Helper functions are defined for common day-to-day
+    operations.</para>
+
+    <para>BSF-COMBINE</para>
 
     <programlisting>Functions code ;</programlisting>
 
@@ -778,7 +813,7 @@ return 0;
         </question>
 
         <answer>
-          <para/>
+          <para> </para>
         </answer>
       </qandaentry>
     </qandaset>
