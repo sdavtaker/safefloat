@@ -1,4 +1,14 @@
+import configure : check-target-builds ;
 using testing ;
 lib boost_unit_test_framework ;
-unit-test test : main-test.cpp [ glob *_test.cpp ] boost_unit_test_framework ;
+
+rule fenv-aware-unit-test ( target : sources * : requirements * )
+{
+   unit-test $(target)-fenv : $(sources) : $(requirements) <define>FENV_AVAILABLE ;
+   unit-test $(target)-no-fenv : $(sources) ;
+}
+
+obj has_fenv : ../check_has_fenv.cpp : <warnings-as-errors>on ;
+
+fenv-aware-unit-test test : main-test.cpp [ glob *_test.cpp ] boost_unit_test_framework : [ check-target-builds  has_fenv  "Compiler is compatible with FENV pragma" : <define>XXX : <build>no ] ;
 

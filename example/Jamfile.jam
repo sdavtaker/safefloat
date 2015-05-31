@@ -4,5 +4,14 @@ project exaremple
 ;
 
 
-exe overflow : example-overflow.cpp ;
-exe underflow : example-underflow.cpp ;
+obj has_fenv : ../check_has_fenv.cpp : <warnings-as-errors>on ;
+
+rule fenv-aware-exe ( target : sources * : requirements * )
+{
+   exe $(target)-fenv : $(sources) : $(requirements) [ check-target-builds  has_fenv  "Compiler is compatible with FENV pragma" : <define>XXX : <build>no ]  <define>FENV_AVAILABLE ;
+   exe $(target)-no-fenv : $(sources) : $(requirements) ;
+}
+
+fenv-aware-exe overflow : example-overflow.cpp ;
+fenv-aware-exe underflow : example-underflow.cpp ;
+
