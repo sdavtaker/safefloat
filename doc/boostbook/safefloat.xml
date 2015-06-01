@@ -809,13 +809,33 @@ return 0;
     <qandaset>
       <qandaentry>
         <question>
-          <para/>
+          <para>Why to implement compose_*_policy in place of using variadic
+          templates.</para>
         </question>
 
         <answer>
-          <para> </para>
+          <para>Variadic Templates can be used only as the last template
+          parameter and we have in mind allowing compose on at least 2 policy
+          parameters, the CHECK and the CAST.</para>
         </answer>
       </qandaentry>
+    </qandaset>
+
+    <qandaset>
+      <qandadiv>
+        <qandaentry>
+          <question>
+            <para>Why all check individual policies derive from check_policy
+            and the compose does it too?</para>
+          </question>
+
+          <answer>
+            <para>To allow individual policies to be accepted individually
+            with no need for compose, also it simplifies very much the
+            composition.</para>
+          </answer>
+        </qandaentry>
+      </qandadiv>
     </qandaset>
   </section>
 

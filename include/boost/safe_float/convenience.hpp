@@ -1,9 +1,8 @@
 //check policies
-#include <boost/safe_float/policy/check_addition_overflow.hpp>
-#include <boost/safe_float/policy/check_addition_reversible.hpp>
+#include <boost/safe_float/policy/check_base_policy.hpp>
 
 //error handling policies
-#include <boost/safe_float/policy/on_fail_throw.hpp>
+#include <boost/safe_float/policy/on_fail_base_policy.hpp>
 
 //cast policies
-#include <boost/safe_float/policy/cast_none.hpp>
+#include <boost/safe_float/policy/cast_base_policy.hpp>

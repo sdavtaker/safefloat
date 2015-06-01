@@ -1,22 +1,27 @@
 #ifndef BOOST_SAFE_FLOAT_HPP
 #define BOOST_SAFE_FLOAT_HPP
+#include <boost/safe_float/convenience.hpp>
+#include <boost/safe_float/policy/check_addition_overflow.hpp>
+#include <boost/safe_float/policy/on_fail_throw.hpp>
 
 namespace boost {
 namespace safe_float{
 
 //forward declaration
-namespace policy {
-template <class T>
-class check_addition_overflow;
+//namespace policy {
+//template <class T>
+//class check_addition_overflow;
 
-class on_fail_throw;
-class cast_none;
-}
+//class on_fail_throw;
+//class cast_none;
+
+//}
+
 
 template<class FP,
          template <class T> class CHECK=policy::check_addition_overflow,
          class ERROR_HANDLING=policy::on_fail_throw,
-         class CAST=policy::cast_none>
+         template <class T> class CAST=policy::cast_none>
 class safe_float : private CHECK<FP>, ERROR_HANDLING {
 FP number;
 public:
@@ -25,6 +30,12 @@ public:
         number = f;
     }
 
+    //Access to internal representation
+    FP get_stored_value(){
+        return number;
+    }
+
+    // unary operators implementation
     safe_float<FP, CHECK, ERROR_HANDLING, CAST>&
     operator+=(const safe_float<FP, CHECK, ERROR_HANDLING, CAST>& rhs)
      {
@@ -39,7 +50,7 @@ public:
 template<class FP,
          template<class T> class CHECK,
          class ERROR_HANDLING,
-         class CAST>
+         template<class T> class CAST>
 inline safe_float<FP, CHECK, ERROR_HANDLING, CAST>
 operator+(safe_float<FP, CHECK, ERROR_HANDLING, CAST> lhs,
           const safe_float<FP, CHECK, ERROR_HANDLING, CAST>& rhs)
@@ -48,6 +59,6 @@ operator+(safe_float<FP, CHECK, ERROR_HANDLING, CAST> lhs,
   return lhs;
 }
 
-}
-}
+} //safe_float
+} //boost
 #endif // BOOST_SAFE_FLOAT_HPP

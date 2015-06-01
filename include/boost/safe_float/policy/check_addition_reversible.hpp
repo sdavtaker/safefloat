@@ -1,11 +1,13 @@
 #ifndef BOOST_SAFE_FLOAT_POLICY_CHECK_ADDITION_REVERSIBLE_HPP
 #define BOOST_SAFE_FLOAT_POLICY_CHECK_ADDITION_REVERSIBLE_HPP
+#include <boost/safe_float/policy/check_base_policy.hpp>
+
 namespace boost {
 namespace safe_float{
 namespace policy{
 
 template<class FP>
-class check_addition_reversible {
+class check_addition_reversible : public check_policy<FP> {
     FP prev_l=0;
     FP prev_r=0;
 public:
