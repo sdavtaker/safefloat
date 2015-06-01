@@ -15,7 +15,7 @@ public:
         return true;
     }
     virtual bool post_addition_check(const FP& rhs){
-        return !precond && !std::isinf(rhs);
+        return precond || ! std::isinf(rhs);
     }
     virtual std::string addition_failure_message(){
         return std::string("Overflow to infinite on addition operation");

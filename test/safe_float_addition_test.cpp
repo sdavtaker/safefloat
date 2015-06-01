@@ -13,7 +13,7 @@
 #include <boost/safe_float.hpp>
 #include <boost/safe_float/convenience.hpp>
 #include <boost/safe_float/policy/check_addition_overflow.hpp>
-#include <boost/safe_float/policy/check_addition_reversible.hpp>
+#include <boost/safe_float/policy/check_addition_inexact.hpp>
 
 //types to be tested
 using test_types=boost::mpl::list<
@@ -57,7 +57,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE( safe_float_addition_throws_on_overflow, FPT, test
 
 }
 
-BOOST_AUTO_TEST_CASE_TEMPLATE( safe_float_addition_reversible, FPT, test_types){
+BOOST_AUTO_TEST_CASE_TEMPLATE( safe_float_addition_inexact, FPT, test_types){
     // define two FPT numbers suppose to overflow
     FPT a = 1;
     FPT b = pow(2, std::numeric_limits<FPT>::digits);
@@ -66,8 +66,8 @@ BOOST_AUTO_TEST_CASE_TEMPLATE( safe_float_addition_reversible, FPT, test_types){
     BOOST_CHECK(a+b-b != a);
 
     // construct safe_float version of the same two numbers
-    safe_float<FPT, policy::check_addition_reversible> c(1);
-    safe_float<FPT, policy::check_addition_reversible> d(pow(2, std::numeric_limits<FPT>::digits));
+    safe_float<FPT, policy::check_addition_inexact> c(1);
+    safe_float<FPT, policy::check_addition_inexact> d(pow(2, std::numeric_limits<FPT>::digits));
 
     // check the addition throws
     BOOST_CHECK_THROW(c+d, std::exception);
