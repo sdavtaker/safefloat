@@ -203,7 +203,8 @@ safe_numerics&lt;double, BSF_COMBINE(no_rounding-no_overflow_to_infinity)&gt; j 
 
                 <listitem>
                   <para>An exception communicating a safety condition was not
-                  covered.</para>
+                  covered or another way to inform user about the
+                  situation.</para>
                 </listitem>
               </itemizedlist></para>
           </listitem>
@@ -223,7 +224,9 @@ safe_numerics&lt;double, BSF_COMBINE(no_rounding-no_overflow_to_infinity)&gt; j 
     <section>
       <title>Current state</title>
 
-      <para>Safe float does nothing usefull yet.</para>
+      <para>Safe float does provides numeric_limits, base policies and a
+      policy to handle overflow to infinte on the addition using compilers
+      supporting FENV and not supporting it.</para>
     </section>
   </section>
 
@@ -258,8 +261,8 @@ int main(){
 using namespace std;
 using namespace boost::safe_float;
 try {
-    safe_float&lt;float,policy::no_overflow_on_addition&gt; a = numeric_limits&lt;float&gt;::max();
-    safe_float&lt;float,policy::no_overflow_on_addition&gt; b = a + a;
+    safe_float&lt;float,policy::check_addition_overflow&gt; a = numeric_limits&lt;float&gt;::max();
+    safe_float&lt;float,policy::check_addition_overflow&gt; b = a + a;
 } catch { const boost::safe_float_exception&amp; e) { 
     cout &lt;&lt; "safe_float required guarantees broken" &lt;&lt; endl;
 }    
@@ -267,18 +270,17 @@ try {
 return 0;
 }</programlisting>
 
-    <para>Here the addition throws a safe_float exception informing the user
-    that one of the requirements was not covered by the operation result. It
-    is important to notice safe_float does nothing to fix this, the task of
-    the library is detect and inform only, user needs to handle the detected
-    problems.</para>
+    <para>Here the addition throws an exception informing the user that one of
+    the requirements was not covered by the operation result. It is important
+    to notice safe_float does nothing to fix this, the task of the library is
+    detect and inform only, user needs to handle the detected problems.</para>
 
     <para>The minimal granularity of a checking policies is checking one
-    operation for a single restriction. They can be composed for providing
-    more complex checks and affect more operations. The library includes
-    several common use compositions under the convenience.hpp file and it is
-    easy to introduce new checks for particular purposes if needed. The
-    complete list of policies can be found in the Policies section of the
+    operation for a single concern. They can be composed for providing more
+    complex checks and affect more operations. The library includes several
+    common use compositions under the convenience.hpp file and it is easy to
+    introduce new checks for particular purposes if needed. The complete list
+    of policies can be found in the Policies section of the
     documentation.</para>
 
     <para>In some contexts, as real-time critical systems, the use of
@@ -293,8 +295,8 @@ return 0;
 int main(){
 using namespace std;
 using namespace boost::safe_float;
-safe_float&lt;float,policy::no_overflow,policy::assert_on_fail&gt; a = numeric_limits&lt;float&gt;::max();
-safe_float&lt;float,policy::no_overflow,policy::assert_on_fail&gt; b = a + a;
+safe_float&lt;float,policy::check_overflow,policy::on_fail_assert&gt; a = numeric_limits&lt;float&gt;::max();
+safe_float&lt;float,policy::check_overflow,policy::on_fail_assert&gt; b = a + a;
 
 return 0;
 }</programlisting></para>
@@ -303,10 +305,11 @@ return 0;
     informing in debug mode, but having no impact at all in the release mode.
     Other alternatives include abort_on_fail and log_on_fail.</para>
 
-    <para>Another template parameter available is the conversion policy, this
-    is responsable of deciding how the data type will play with others. The
-    default is not interacting with any other. In some cases, we would like to
-    accept the wrapped type as parameter of the operations.</para>
+    <para>Another template parameter available is the conversion (or cast)
+    policy, this is responsable of deciding how the data type will play with
+    others. The default is not interacting with any other. In some cases, we
+    would like to accept the wrapped type as parameter of the
+    operations.</para>
 
     <para>The following is an example allowing addition-assigment with wrapped
     type parameter.</para>
@@ -318,7 +321,7 @@ return 0;
 int main(){
 using namespace std;
 using namespace boost::safe_float;
-safe_float&lt;float,policy::no_overflow,policy::assert_on_fail,policy::accept_wrappedtype_params&gt; a = numeric_limits&lt;float&gt;::max();
+safe_float&lt;float,policy::check_overflow,policy::on_fail_assert,policy::accept_wrappedtype_params&gt; a = numeric_limits&lt;float&gt;::max();
 
 a += 3.14f; //ok because of accept_wrappedtype_params
 
@@ -345,8 +348,8 @@ return 0;
 
     <itemizedlist>
       <listitem>
-        <para>Current implementation supports only double as internal Floating
-        Point implementation.</para>
+        <para>Current implementation supports only float, double and long
+        double as internal Floating Point implementation.</para>
       </listitem>
     </itemizedlist>
 
@@ -360,7 +363,7 @@ return 0;
     <itemizedlist>
       <listitem>
         <para>Tests are implemented using Boost.Test and require the compiled
-        version to run, also they depend in Boost.Any and
+        version to run, also they depend in Boost.Any, Boost.MPL, and
         Boost.Rational.</para>
       </listitem>
     </itemizedlist>
@@ -374,34 +377,34 @@ return 0;
     <section>
       <title>Policy classes</title>
 
-      <para>A policy is...</para>
-
       <para>The library supports three kind of policies: CHECK, ERROR_HANDLING
       and CAST.</para>
 
       <itemizedlist>
         <listitem>
           <para>CHECK policies receive a template parameter with the wrapped
-          floating point data</para>
+          floating point datatype and implement the validations as pair of
+          functions: pre_operator_check and post_operator_check. Each operator
+          calls the pre and post checks defined. Post conditions are those
+          doing the actual validation, pre conditions are used to collect
+          required information for evaluating the post condition and setup of
+          flags. </para>
 
-          <para>type and implement the validations as pair of functions:
-          pre_operator_check and post_operator_check. Each operator calls the
-          pre and post checks defined. Post conditions are those doing the
-          actual validation, pre conditions are used to collect required
-          information for evaluating the post condition and setup of
-          flags.</para>
+          <para>Also, CHECK policies define a method for generating the error
+          message called operator_failure_message</para>
         </listitem>
 
         <listitem>
           <para>ERROR_HANDLING policies define how the user would to be
           notified in the case a CHECK fails. A single method is required from
-          these classes, report_failure.</para>
+          these classes, report_failure on which a exception can be thrown, a
+          message can be output on std::cerr, or any other method.</para>
         </listitem>
 
         <listitem>
-          <para>CAST policies define will a safe_float play along with other
-          datatypes, for example it will tell if operations are allowed to
-          receive any parameter being the wrapped type in place of a
+          <para>CAST policies define how will a safe_float play along with
+          other datatypes, for example it will tell if operations are allowed
+          to receive any parameter being the wrapped type in place of a
           safe_float with exactly the same template parameters. Also, it tells
           if safe_float can be casted to the wrapped type.</para>
         </listitem>
@@ -415,7 +418,7 @@ return 0;
     <section>
       <title>safe_float&lt;FP, CHECK, ERROR_HANDLING, CAST&gt;</title>
 
-      <para>This type is the safe_float core, it wraps a FP flaoting point
+      <para>This type is the safe_float core, it wraps a FP floating point
       data type. Every operation over this datatype is checked using the CHECK
       policy. When a check fails, it is reported to the user following the
       ERROR_HANDLING policy. If a cast is required by any operation, it should
@@ -432,7 +435,7 @@ return 0;
         <title>CHECK Policy classes</title>
 
         <para>CHECK policies define the conditions to be evaluated when
-        operating.</para>
+        operating. </para>
 
         <para>The table shows how the policies defined in the library interact
         with each operation and danger.</para>
@@ -629,7 +632,8 @@ return 0;
 
         <para>The policies can be combined defining classes that inherit from
         other policies. This requires some glue code in the case the policies
-        combined are not 100% orthogonal.</para>
+        combined are not 100% orthogonal, this glue is implemented
+        boost::safe_float::compose_check_policy.</para>
 
         <para>The following is a table of convenient combined policies already
         available in the library and their components.</para>
@@ -713,10 +717,6 @@ return 0;
             </tbody>
           </tgroup>
         </table>
-
-        <para>Some of these policies can be handled with just using cfenv
-        flags, while others may require special tests to be developed in the
-        pre-post condition functions.</para>
       </section>
 
       <section>
@@ -793,7 +793,8 @@ return 0;
         <para><itemizedlist>
             <listitem>
               <para>is_exact is true if the wraped type is or if all operation
-              are checked for inexact results by the wrapper.</para>
+              are checked for inexact results by the wrapper. Same applies to
+              round_style and round_error.</para>
             </listitem>
 
             <listitem>
@@ -814,6 +815,16 @@ return 0;
               wrapped by safe_float.</para>
             </listitem>
           </itemizedlist></para>
+      </section>
+
+      <section>
+        <title>FENV_AVAILABLE constant</title>
+
+        <para>Each CHECK policy is implemented using fenv functions and
+        without using fenv functions. The selection of which implementation is
+        compiled is seleceted by the FENV_AVAILABLE constant. This constant is
+        passed to the compiler automaticly by the b2 script if the pragma to
+        make them safe is available.</para>
       </section>
     </section>
   </section>
