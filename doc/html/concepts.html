@@ -20,31 +20,32 @@
 <div class="section">
 <div class="titlepage"><div><div><h2 class="title" style="clear: both">
 <a name="safe_float.concepts"></a>Concepts</h2></div></div></div>
-<div class="toc"><dl><dt><span class="section"><a href="concepts.html#idp140659880456096">Policy classes</a></span></dt></dl></div>
+<div class="toc"><dl><dt><span class="section"><a href="concepts.html#idp140500700355808">Policy classes</a></span></dt></dl></div>
 <p>The architecture is based in policies.</p>
 <div class="section">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="idp140659880456096"></a>Policy classes</h3></div></div></div>
-<p>A policy is...</p>
+<a name="idp140500700355808"></a>Policy classes</h3></div></div></div>
 <p>The library supports three kind of policies: CHECK, ERROR_HANDLING
       and CAST.</p>
 <div class="itemizedlist"><ul class="itemizedlist" type="disc">
 <li class="listitem">
 <p>CHECK policies receive a template parameter with the wrapped
-          floating point data</p>
-<p>type and implement the validations as pair of functions:
-          pre_operator_check and post_operator_check. Each operator calls the
-          pre and post checks defined. Post conditions are those doing the
-          actual validation, pre conditions are used to collect required
-          information for evaluating the post condition and setup of
-          flags.</p>
+          floating point datatype and implement the validations as pair of
+          functions: pre_operator_check and post_operator_check. Each operator
+          calls the pre and post checks defined. Post conditions are those
+          doing the actual validation, pre conditions are used to collect
+          required information for evaluating the post condition and setup of
+          flags. </p>
+<p>Also, CHECK policies define a method for generating the error
+          message called operator_failure_message</p>
 </li>
 <li class="listitem"><p>ERROR_HANDLING policies define how the user would to be
           notified in the case a CHECK fails. A single method is required from
-          these classes, report_failure.</p></li>
-<li class="listitem"><p>CAST policies define will a safe_float play along with other
-          datatypes, for example it will tell if operations are allowed to
-          receive any parameter being the wrapped type in place of a
+          these classes, report_failure on which a exception can be thrown, a
+          message can be output on std::cerr, or any other method.</p></li>
+<li class="listitem"><p>CAST policies define how will a safe_float play along with
+          other datatypes, for example it will tell if operations are allowed
+          to receive any parameter being the wrapped type in place of a
           safe_float with exactly the same template parameters. Also, it tells
           if safe_float can be casted to the wrapped type.</p></li>
 </ul></div>
