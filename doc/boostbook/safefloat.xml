@@ -779,6 +779,42 @@ return 0;
 
         <para>In no_cast, nothing is casted.</para>
       </section>
+
+      <section>
+        <title>Numeric Limits</title>
+
+        <para>In safe_float a new specialization of numeric_limits is defined
+        for each wrapped number. For most functions and constants the values
+        are obtained from the original number.</para>
+
+        <para>The few methods/constants that are not aliased to the wrapped
+        type are listed below.</para>
+
+        <para><itemizedlist>
+            <listitem>
+              <para>is_exact is true if the wraped type is or if all operation
+              are checked for inexact results by the wrapper.</para>
+            </listitem>
+
+            <listitem>
+              <para>has_quiet_NaN is true if the wraped type has quiet NaN and
+              no check is introduced by the wrapper to catch them.</para>
+            </listitem>
+
+            <listitem>
+              <para>has_signaling_NaN is true if the wraped type has signaling
+              NaN and no check is introduced by the wrapper to catch them.
+              </para>
+            </listitem>
+
+            <listitem>
+              <para>Functions returning a safe_float: min, max, lowest,
+              quit_NaN, signaling_NaN, epsilon, round_error, infinity,
+              denorm_min. They return the value returned by the wrapped type
+              wrapped by safe_float.</para>
+            </listitem>
+          </itemizedlist></para>
+      </section>
     </section>
   </section>
 
