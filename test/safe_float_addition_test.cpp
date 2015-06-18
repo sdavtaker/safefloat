@@ -13,7 +13,9 @@
 #include <boost/safe_float.hpp>
 #include <boost/safe_float/convenience.hpp>
 #include <boost/safe_float/policy/check_addition_overflow.hpp>
+#include <boost/safe_float/policy/check_addition_underflow.hpp>
 #include <boost/safe_float/policy/check_addition_inexact.hpp>
+#include <boost/safe_float/policy/check_addition_invalid_result.hpp>
 
 //types to be tested
 using test_types=boost::mpl::list<
@@ -26,7 +28,6 @@ using namespace boost::safe_float;
   This test suite checks different policies on addition operations using default parameters for the other policies.
   */
 BOOST_AUTO_TEST_SUITE( safe_float_addition_test_suite )
-BOOST_AUTO_TEST_SUITE( safe_float_addition_overflow_test_suite )
 
 BOOST_AUTO_TEST_CASE_TEMPLATE( safe_float_addition_throws_on_overflow, FPT, test_types){
     // define two FPT numbers suppose to positive overflow
@@ -57,8 +58,8 @@ BOOST_AUTO_TEST_CASE_TEMPLATE( safe_float_addition_throws_on_overflow, FPT, test
 
 }
 
-BOOST_AUTO_TEST_CASE_TEMPLATE( safe_float_addition_inexact, FPT, test_types){
-    // define two FPT numbers suppose to overflow
+BOOST_AUTO_TEST_CASE_TEMPLATE( safe_float_addition_inexact_rounding, FPT, test_types){
+    // define two FPT numbers suppose to produce an inexact rounded result
     FPT a = 1;
     FPT b = pow(2, std::numeric_limits<FPT>::digits);
 
@@ -73,7 +74,43 @@ BOOST_AUTO_TEST_CASE_TEMPLATE( safe_float_addition_inexact, FPT, test_types){
     BOOST_CHECK_THROW(c+d, std::exception);
 }
 
-BOOST_AUTO_TEST_SUITE_END()
+BOOST_AUTO_TEST_CASE_TEMPLATE( safe_float_addition_underflow, FPT, test_types){
+    // define two FPT numbers suppose to underflow
+    FPT a, b, c;
+    if (std::is_same<FPT, double>()) {
+        a =  2.2250738585072019e-308;
+        b = -2.2250738585072014e-308;
+        //check the addition produces an denormal result (considered underflow)
+        c = a + b;
+        BOOST_CHECK( std::fpclassify( c ) == FP_SUBNORMAL ) ;
+
+        // construct safe_float version of the same two numbers
+        safe_float<FPT, policy::check_addition_underflow> d(2.2250738585072019e-308);
+        safe_float<FPT, policy::check_addition_underflow> e(-2.2250738585072014e-308);
+
+        // check the addition throws
+        BOOST_CHECK_THROW(d+e, std::exception);
+    } else {
+        BOOST_ERROR("underflow test only implemented for double so far");
+    }
+}
+
+BOOST_AUTO_TEST_CASE_TEMPLATE( safe_float_addition_invalid_result, FPT, test_types){
+    // define two FPT numbers suppose to produce a NAN
+    FPT a = std::numeric_limits<FPT>::infinity();
+    FPT b = -(std::numeric_limits<FPT>::infinity());
+
+    // check adding produced NaN
+    BOOST_CHECK(isnan(a+b));
+
+    // construct safe_float version of the same two numbers
+    safe_float<FPT, policy::check_addition_invalid_result> c(std::numeric_limits<FPT>::infinity());
+    safe_float<FPT, policy::check_addition_invalid_result> d(-(std::numeric_limits<FPT>::infinity()));
+
+    // check the addition throws
+    BOOST_CHECK_THROW(c+d, std::exception);
+}
+
 
 BOOST_AUTO_TEST_SUITE_END()
 

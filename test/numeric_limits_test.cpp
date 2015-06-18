@@ -30,6 +30,7 @@ BOOST_AUTO_TEST_SUITE( safe_float_numeric_limits_suite )
 BOOST_AUTO_TEST_CASE_TEMPLATE( safe_float_numeric_limits_basic_fp_types, FPT, test_types){
     //define a safe_float with base policies
     using number_type = safe_float<FPT>;
+    using exact_number_type = safe_float<FPT, policy::check_inexact_rounding>;
 
     //check the specialization equal methods and attributes
     BOOST_CHECK(std::numeric_limits<number_type>::is_specialized == std::numeric_limits<FPT>::is_specialized);
@@ -52,17 +53,18 @@ BOOST_AUTO_TEST_CASE_TEMPLATE( safe_float_numeric_limits_basic_fp_types, FPT, te
     BOOST_CHECK(std::numeric_limits<number_type>::traps == std::numeric_limits<FPT>::traps);
     BOOST_CHECK(std::numeric_limits<number_type>::tinyness_before == std::numeric_limits<FPT>::tinyness_before);
 
-    //check for methods that need more thinking before shipping
+    //if safe_float has a policy declaring inexact is handled in every operation it should be considered exact
     BOOST_CHECK(std::numeric_limits<number_type>::is_exact == std::numeric_limits<FPT>::is_exact);
-    BOOST_ERROR("MISSED IMPLEMENTATION OF PROPER TEST FOR IS_EXACT");
+    BOOST_CHECK(std::numeric_limits<exact_number_type>::is_exact); //need to be implemented
+
+    //The way NaNs are handled makes reference to the internal datatype
     BOOST_CHECK(std::numeric_limits<number_type>::has_quiet_NaN == std::numeric_limits<FPT>::has_quiet_NaN);
-    BOOST_ERROR("MISSED IMPLEMENTATION OF PROPER TEST FOR HAS_QUIET_NAN");
     BOOST_CHECK(std::numeric_limits<number_type>::has_signaling_NaN == std::numeric_limits<FPT>::has_signaling_NaN);
-    BOOST_ERROR("MISSED IMPLEMENTATION OF PROPER TEST FOR HAS_SIGNALING_NAN");
     BOOST_CHECK(std::numeric_limits<number_type>::round_style == std::numeric_limits<FPT>::round_style);
-    BOOST_ERROR("MISSED IMPLEMENTATION OF PROPER TEST FOR ROUND_STYLE");
+
+    //round error is zero if the number is_exactly represented
     BOOST_CHECK(std::numeric_limits<number_type>::round_error().get_stored_value() == std::numeric_limits<FPT>::round_error());
-    BOOST_ERROR("MISSED IMPLEMENTATION OF PROPER TEST FOR ROUND_ERROR");
+    BOOST_CHECK(std::numeric_limits<exact_number_type>::round_error().get_stored_value() == 0.0f);
 
     //check the special methods and attributes that are wrapped are internally the same values
     BOOST_CHECK(std::numeric_limits<number_type>::min().get_stored_value() == std::numeric_limits<FPT>::min());

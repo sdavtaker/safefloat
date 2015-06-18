@@ -12,7 +12,9 @@
 #include <cmath>
 #include <limits>
 
+
 #include <boost/safe_float.hpp>
+#include <boost/safe_float/convenience.hpp>
 
 //types to be tested
 using test_types=boost::mpl::list<

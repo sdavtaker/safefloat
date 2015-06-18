@@ -30,7 +30,7 @@ public:
 
     virtual bool post_addition_check(const FP& rhs){
 #ifndef FENV_AVAILABLE
-        return (rhs - prev_r) == prev_l; //not sure this is enough check, need to do some math...
+        return ((rhs - prev_r) == prev_l) && ((rhs - prev_l) == prev_r); //this check is not completely safe, need to do some math to get a proper implementation...
 #else
         return ! std::fetestexcept(FE_INEXACT);
 #endif

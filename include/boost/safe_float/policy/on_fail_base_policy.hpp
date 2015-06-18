@@ -1,7 +1,7 @@
 #ifndef BOOST_SAFE_FLOAT_ON_FAIL_BASE_POLICY_HPP
 #define BOOST_SAFE_FLOAT_ON_FAIL_BASE_POLICY_HPP
 
-#include <type_traits>
+#include <string>
 
 namespace boost {
 namespace safe_float{

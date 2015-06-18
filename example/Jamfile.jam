@@ -13,5 +13,5 @@ rule fenv-aware-exe ( target : sources * : requirements * )
 }
 
 fenv-aware-exe overflow : example-overflow.cpp ;
-fenv-aware-exe underflow : example-underflow.cpp ;
+fenv-aware-exe safezero : example-safezero.cpp ;
 

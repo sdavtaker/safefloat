@@ -1,25 +1,13 @@
 #ifndef BOOST_SAFE_FLOAT_HPP
 #define BOOST_SAFE_FLOAT_HPP
 #include <boost/safe_float/convenience.hpp>
-#include <boost/safe_float/policy/check_addition_overflow.hpp>
 #include <boost/safe_float/policy/on_fail_throw.hpp>
 
 namespace boost {
 namespace safe_float{
 
-//forward declaration
-//namespace policy {
-//template <class T>
-//class check_addition_overflow;
-
-//class on_fail_throw;
-//class cast_none;
-
-//}
-
-
 template<class FP,
-         template <class T> class CHECK=policy::check_addition_overflow,
+         template <class T> class CHECK=policy::check_all,
          class ERROR_HANDLING=policy::on_fail_throw,
          template <class T> class CAST=policy::cast_none>
 class safe_float : private CHECK<FP>, ERROR_HANDLING {
@@ -31,42 +19,96 @@ public:
     }
 
     //Access to internal representation
-    FP get_stored_value(){
+    const FP get_stored_value(){
         return number;
     }
 
-    // unary operators implementation
+    // unary arithmetic operators implementation
     safe_float<FP, CHECK, ERROR_HANDLING, CAST>&
-    operator+=(const safe_float<FP, CHECK, ERROR_HANDLING, CAST>& rhs)
-     {
-       this->pre_addition_check(number, rhs.number);
+    operator+=(const safe_float<FP, CHECK, ERROR_HANDLING, CAST>& rhs){
+       if (!this->pre_addition_check(number, rhs.number)) this->report_failure(this->addition_failure_message()); //early error detection
        number += rhs.number;
        if (!this->post_addition_check(number)) this->report_failure(this->addition_failure_message());
        return *this;
-     }
+    }
 
-    //TODO: implement check policies for operator- and tests
+    safe_float<FP, CHECK, ERROR_HANDLING, CAST>&
+    operator-=(const safe_float<FP, CHECK, ERROR_HANDLING, CAST>& rhs){
+       if (!this->pre_subtraction_check(number, rhs.number)) this->report_failure(this->subtraction_failure_message()); //early error detection
+       number -= rhs.number;
+       if (!this->post_subtraction_check(number)) this->report_failure(this->subtraction_failure_message());
+       return *this;
+    }
+
+    safe_float<FP, CHECK, ERROR_HANDLING, CAST>&
+    operator*=(const safe_float<FP, CHECK, ERROR_HANDLING, CAST>& rhs){
+       if (!this->pre_multiplication_check(number, rhs.number)) this->report_failure(this->multiplication_failure_message()); //early error detection
+       number *= rhs.number;
+       if (!this->post_multiplication_check(number)) this->report_failure(this->multiplication_failure_message());
+       return *this;
+    }
+
+    safe_float<FP, CHECK, ERROR_HANDLING, CAST>&
+    operator/=(const safe_float<FP, CHECK, ERROR_HANDLING, CAST>& rhs){
+       if (!this->pre_division_check(number, rhs.number)) this->report_failure(this->division_failure_message()); //early error detection
+       number /= rhs.number;
+       if (!this->post_division_check(number)) this->report_failure(this->division_failure_message());
+       return *this;
+    }
+
+    //unary negative operator
     safe_float<FP, CHECK, ERROR_HANDLING, CAST> operator-() const{
         return safe_float<FP, CHECK, ERROR_HANDLING, CAST>(-number);
     }
 };
 
-//binary operators
+//binary arithmetic operators
 template<class FP,
          template<class T> class CHECK,
          class ERROR_HANDLING,
          template<class T> class CAST>
 inline safe_float<FP, CHECK, ERROR_HANDLING, CAST>
 operator+(safe_float<FP, CHECK, ERROR_HANDLING, CAST> lhs,
-          const safe_float<FP, CHECK, ERROR_HANDLING, CAST>& rhs)
-{
+          const safe_float<FP, CHECK, ERROR_HANDLING, CAST>& rhs){
   lhs += rhs;
+  return lhs;
+}
+
+template<class FP,
+         template<class T> class CHECK,
+         class ERROR_HANDLING,
+         template<class T> class CAST>
+inline safe_float<FP, CHECK, ERROR_HANDLING, CAST>
+operator-(safe_float<FP, CHECK, ERROR_HANDLING, CAST> lhs,
+          const safe_float<FP, CHECK, ERROR_HANDLING, CAST>& rhs){
+  lhs -= rhs;
+  return lhs;
+}
+
+template<class FP,
+         template<class T> class CHECK,
+         class ERROR_HANDLING,
+         template<class T> class CAST>
+inline safe_float<FP, CHECK, ERROR_HANDLING, CAST>
+operator*(safe_float<FP, CHECK, ERROR_HANDLING, CAST> lhs,
+          const safe_float<FP, CHECK, ERROR_HANDLING, CAST>& rhs){
+  lhs *= rhs;
+  return lhs;
+}
+
+template<class FP,
+         template<class T> class CHECK,
+         class ERROR_HANDLING,
+         template<class T> class CAST>
+inline safe_float<FP, CHECK, ERROR_HANDLING, CAST>
+operator/(safe_float<FP, CHECK, ERROR_HANDLING, CAST> lhs,
+          const safe_float<FP, CHECK, ERROR_HANDLING, CAST>& rhs){
+  lhs /= rhs;
   return lhs;
 }
 
 } //safe_float
 } //boost
-
 
 
 //Numeric limits specialization
@@ -76,8 +118,7 @@ template<class FP,
          template <class T> class CHECK,
          class ERROR_HANDLING,
          template <class T> class CAST>
-class numeric_limits <boost::safe_float::safe_float<FP, CHECK, ERROR_HANDLING, CAST>>
-{
+class numeric_limits <boost::safe_float::safe_float<FP, CHECK, ERROR_HANDLING, CAST>>{
     using number_type = boost::safe_float::safe_float<FP, CHECK, ERROR_HANDLING, CAST>;
 public:
    static constexpr bool is_specialized = true;
@@ -105,22 +146,23 @@ public:
    static constexpr bool has_signaling_NaN = std::numeric_limits<FP>::has_signaling_NaN; //TODO: check policies for nan
    static constexpr float_round_style round_style = std::numeric_limits<FP>::round_style; //TODO: check inexact policies
 
-   static constexpr number_type min() noexcept(std::numeric_limits<FP>::min()) {
+   static constexpr number_type min() noexcept(std::numeric_limits<FP>::min()){
        return boost::safe_float::safe_float<FP, CHECK, ERROR_HANDLING, CAST>(
                std::numeric_limits<FP>::min());
    }
-   static constexpr number_type max() noexcept(std::numeric_limits<FP>::max()) {
+   static constexpr number_type max() noexcept(std::numeric_limits<FP>::max()){
        return boost::safe_float::safe_float<FP, CHECK, ERROR_HANDLING, CAST>(
                std::numeric_limits<FP>::max());
    }
-   static constexpr number_type lowest() noexcept(max) {
+   static constexpr number_type lowest() noexcept(max){
        return -(max)();
    }
    static constexpr number_type epsilon() noexcept(std::numeric_limits<FP>::epsilon()){
        return  boost::safe_float::safe_float<FP, CHECK, ERROR_HANDLING, CAST>(
                    std::numeric_limits<FP>::epsilon());
    }
-   static constexpr number_type round_error() noexcept(std::numeric_limits<FP>::round_error()){ //TODO: check for inexact policies
+   static constexpr number_type round_error() noexcept(std::numeric_limits<FP>::round_error()){
+       //TODO: check for inexact policies
        return  boost::safe_float::safe_float<FP, CHECK, ERROR_HANDLING, CAST>(
                    std::numeric_limits<FP>::round_error());
    }
