@@ -1,7 +1,11 @@
 #ifndef BOOST_SAFE_FLOAT_HPP
 #define BOOST_SAFE_FLOAT_HPP
+
+#include <iostream>
+
 #include <boost/safe_float/convenience.hpp>
 #include <boost/safe_float/policy/on_fail_throw.hpp>
+
 
 namespace boost {
 namespace safe_float{
@@ -13,14 +17,20 @@ template<class FP,
 class safe_float : private CHECK<FP>, ERROR_HANDLING {
 FP number;
 public:
+    safe_float(): safe_float((FP) 0.0f){}
     safe_float(FP f){
         static_assert(std::is_floating_point<FP>::value, "First template parameter in safe_float has to be floating point data type");
         number = f;
     }
 
+    //alternative constructors
+
     //Access to internal representation
-    const FP get_stored_value(){
+    FP get_stored_value() const{
         return number;
+    }
+    void set_stored_value(FP f){
+        number = f;
     }
 
     // unary arithmetic operators implementation
@@ -60,6 +70,7 @@ public:
     safe_float<FP, CHECK, ERROR_HANDLING, CAST> operator-() const{
         return safe_float<FP, CHECK, ERROR_HANDLING, CAST>(-number);
     }
+
 };
 
 //binary arithmetic operators
@@ -105,6 +116,83 @@ operator/(safe_float<FP, CHECK, ERROR_HANDLING, CAST> lhs,
           const safe_float<FP, CHECK, ERROR_HANDLING, CAST>& rhs){
   lhs /= rhs;
   return lhs;
+}
+
+//comparison operators
+template<class FP,
+         template<class T> class CHECK,
+         class ERROR_HANDLING,
+         template<class T> class CAST>
+inline bool operator< (const safe_float<FP, CHECK, ERROR_HANDLING, CAST>& lhs,
+                       const safe_float<FP, CHECK, ERROR_HANDLING, CAST>& rhs){
+    return lhs.get_stored_value() < rhs.get_stored_value();
+}
+
+template<class FP,
+         template<class T> class CHECK,
+         class ERROR_HANDLING,
+         template<class T> class CAST>
+inline bool operator> (const safe_float<FP, CHECK, ERROR_HANDLING, CAST>& lhs,
+                       const safe_float<FP, CHECK, ERROR_HANDLING, CAST>& rhs){
+    return rhs < lhs;
+}
+
+template<class FP,
+         template<class T> class CHECK,
+         class ERROR_HANDLING,
+         template<class T> class CAST>
+inline bool operator<=(const safe_float<FP, CHECK, ERROR_HANDLING, CAST>& lhs,
+                       const safe_float<FP, CHECK, ERROR_HANDLING, CAST>& rhs){
+    return !(lhs > rhs);
+}
+
+template<class FP,
+         template<class T> class CHECK,
+         class ERROR_HANDLING,
+         template<class T> class CAST>
+inline bool operator>=(const safe_float<FP, CHECK, ERROR_HANDLING, CAST>& lhs,
+                       const safe_float<FP, CHECK, ERROR_HANDLING, CAST>& rhs){
+    return !(lhs < rhs);
+}
+
+template<class FP,
+         template<class T> class CHECK,
+         class ERROR_HANDLING,
+         template<class T> class CAST>
+inline bool operator==(const safe_float<FP, CHECK, ERROR_HANDLING, CAST>& lhs,
+                       const safe_float<FP, CHECK, ERROR_HANDLING, CAST>& rhs){
+    return lhs.get_stored_value() == rhs.get_stored_value();
+}
+
+template<class FP,
+         template<class T> class CHECK,
+         class ERROR_HANDLING,
+         template<class T> class CAST>
+inline bool operator!=(const safe_float<FP, CHECK, ERROR_HANDLING, CAST>& lhs,
+                       const safe_float<FP, CHECK, ERROR_HANDLING, CAST>& rhs){
+    return !(lhs == rhs);
+}
+
+//iostream operators
+template<class FP,
+         template<class T> class CHECK,
+         class ERROR_HANDLING,
+         template<class T> class CAST>
+inline std::ostream& operator<< (std::ostream &out, safe_float<FP, CHECK, ERROR_HANDLING, CAST> &sf)
+{
+    out << sf.get_stored_value();
+    return out;
+}
+
+template<class FP,
+         template<class T> class CHECK,
+         class ERROR_HANDLING,
+         template<class T> class CAST>
+inline std::istream& operator>> (std::istream &in, safe_float<FP, CHECK, ERROR_HANDLING, CAST> &sf){
+    FP number;
+    in >> number;
+    sf.set_stored_value(number);
+    return in;
 }
 
 } //safe_float

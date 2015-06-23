@@ -222,11 +222,82 @@ safe_numerics&lt;double, BSF_COMBINE(no_rounding-no_overflow_to_infinity)&gt; j 
     </section>
 
     <section>
+      <title>Scope</title>
+
+      <para>Current implementation expects to apply the policies to the native
+      Floating Point types :float, double, long double.</para>
+
+      <para>Extending to support Boost.Multiprecission is planned as future
+      work.</para>
+    </section>
+
+    <section>
+      <title>Requirements</title>
+
+      <para>safe_float is a headers-only library with few requirements:</para>
+
+      <para><itemizedlist>
+          <listitem>
+            <para>A compiler supporting C++11 standard.</para>
+          </listitem>
+
+          <listitem>
+            <para>A compiler supporting pragma FENV is not required, but
+            better performance is expected when supported.</para>
+          </listitem>
+        </itemizedlist></para>
+
+      <para><itemizedlist>
+          <listitem>
+            <para>For building examples and tests B2 is used.</para>
+          </listitem>
+        </itemizedlist></para>
+
+      <itemizedlist>
+        <listitem>
+          <para>Some examples may have require extra dependencies from Boost,
+          including Boost.ProgramOptions.</para>
+        </listitem>
+      </itemizedlist>
+
+      <itemizedlist>
+        <listitem>
+          <para>Tests are implemented using Boost.Test compiled version and
+          they require also Boost.MPL.</para>
+        </listitem>
+      </itemizedlist>
+    </section>
+
+    <section>
       <title>Current state</title>
 
-      <para>Safe float does provides numeric_limits, base policies and a
-      policy to handle overflow to infinte on the addition using compilers
-      supporting FENV and not supporting it.</para>
+      <para>Safe float currently provides numeric_limits, and complete set of
+      check policies, including fine grain policies as
+      "check_addition_overflow" and coarse grain as "check_all". Composers for
+      policies are provided to allow the user select the kind of issues to be
+      trapped. Composed set of policies is also provided for
+      convenience.</para>
+
+      <para>B2 scripts detect if current compiler has support for FENV pragma,
+      and uses it when supported.</para>
+
+      <para>Only one policy is implemented for cast and error_handling so
+      far.</para>
+
+      <para>Tests are not yet complete for underflow and invalid result
+      policies. </para>
+
+      <para>FENV enabled implementation was never tested since g++ and clang++
+      does not support it yet.</para>
+
+      <para>The library was tested mostly using clang.</para>
+
+      <para>The exception strong guarantee may have been broken in some
+      places, this is a temporary problem. </para>
+
+      <para>The throw_on_error policy is throwing always std::exception,
+      subclasses of it might be used in the future to provide finer grain
+      catching.</para>
     </section>
   </section>
 
@@ -250,8 +321,8 @@ return 0;
 }</programlisting>
 
     <para>If we replace the type used by both variables to
-    safe_float&lt;float, no_overflow_on_addition&gt;, the addition would have
-    throw an exception to inform the user.</para>
+    safe_float&lt;float, check_addition_overflow&gt;, the addition would have
+    thrown an exception to inform the user.</para>
 
     <programlisting>#include &lt;iostream&gt;
 #include &lt;limits&gt;
@@ -332,41 +403,20 @@ return 0;
   <section id="safe_float.notes">
     <title>Notes</title>
 
-    <para>safe_float is a headers-only library with few requirements:</para>
+    <para>All concepts, types and functions documented are declared in the
+    namespace boost::safe_float, except for the policies with are declared
+    in</para>
 
-    <para><itemizedlist>
-        <listitem>
-          <para>Library requires C++11.</para>
-        </listitem>
-      </itemizedlist></para>
+    <para> the namespace boost::safe_float::policy.</para>
 
-    <para><itemizedlist>
-        <listitem>
-          <para>Building of examples and test can be done running b2.</para>
-        </listitem>
-      </itemizedlist></para>
+    <para>B2 may output an error when detecting FENV, this is just part of the
+    detection before compiling, not a real issue.</para>
 
-    <itemizedlist>
-      <listitem>
-        <para>Current implementation supports only float, double and long
-        double as internal Floating Point implementation.</para>
-      </listitem>
-    </itemizedlist>
+    <para>An operation producing a denormal result is considered an underflow
+    by the policies provided by this library.</para>
 
-    <itemizedlist>
-      <listitem>
-        <para>Examples have some extra dependencies, including
-        Boost.ProgramOptions.</para>
-      </listitem>
-    </itemizedlist>
-
-    <itemizedlist>
-      <listitem>
-        <para>Tests are implemented using Boost.Test and require the compiled
-        version to run, also they depend in Boost.Any, Boost.MPL, and
-        Boost.Rational.</para>
-      </listitem>
-    </itemizedlist>
+    <para>All results producing a NaN are considered invalid results by the
+    policies provided by this library. </para>
   </section>
 
   <section id="safe_float.concepts">
@@ -388,7 +438,7 @@ return 0;
           calls the pre and post checks defined. Post conditions are those
           doing the actual validation, pre conditions are used to collect
           required information for evaluating the post condition and setup of
-          flags. </para>
+          flags.</para>
 
           <para>Also, CHECK policies define a method for generating the error
           message called operator_failure_message</para>
@@ -435,7 +485,7 @@ return 0;
         <title>CHECK Policy classes</title>
 
         <para>CHECK policies define the conditions to be evaluated when
-        operating. </para>
+        operating.</para>
 
         <para>The table shows how the policies defined in the library interact
         with each operation and danger.</para>
@@ -524,7 +574,7 @@ return 0;
 
                 <entry>check_multiplication_inexact_rounding</entry>
 
-                <entry/>
+                <entry>(2*((2^digits)-1))*((2^digits)-1)</entry>
               </row>
 
               <row>
@@ -534,7 +584,7 @@ return 0;
 
                 <entry>check_division_inexact_rounding</entry>
 
-                <entry>1.0 / 10.0</entry>
+                <entry>1.0 / 3.0</entry>
               </row>
 
               <row>
@@ -544,7 +594,8 @@ return 0;
 
                 <entry>check_addition_underflow</entry>
 
-                <entry/>
+                <entry> 2.2250738585072019e-308 +
+                -2.2250738585072014e-308</entry>
               </row>
 
               <row>
@@ -554,7 +605,8 @@ return 0;
 
                 <entry>check_subtraction_underflow</entry>
 
-                <entry/>
+                <entry>2.2250738585072019e-308 -
+                2.2250738585072014e-308</entry>
               </row>
 
               <row>
@@ -574,7 +626,7 @@ return 0;
 
                 <entry>check_division_underflow</entry>
 
-                <entry/>
+                <entry>min() / max()</entry>
               </row>
 
               <row>
@@ -584,7 +636,7 @@ return 0;
 
                 <entry>check_division_by_zero</entry>
 
-                <entry>1.0/0.0</entry>
+                <entry>1.0 / 0.0</entry>
               </row>
 
               <row>
@@ -592,9 +644,9 @@ return 0;
 
                 <entry>Addition</entry>
 
-                <entry>check_addition_nan</entry>
+                <entry>check_addition_invalid_result</entry>
 
-                <entry/>
+                <entry>infinity() + (- infinity())</entry>
               </row>
 
               <row>
@@ -602,9 +654,9 @@ return 0;
 
                 <entry>Subtraction</entry>
 
-                <entry>check_subtraction_nan</entry>
+                <entry>check_subtraction_invalid_result</entry>
 
-                <entry/>
+                <entry>infinity() - infinity()</entry>
               </row>
 
               <row>
@@ -612,9 +664,9 @@ return 0;
 
                 <entry>Multiplication</entry>
 
-                <entry>check_multiplication_nan</entry>
+                <entry>check_multiplication_invalid_result</entry>
 
-                <entry/>
+                <entry>infinity() * 0.0</entry>
               </row>
 
               <row>
@@ -622,9 +674,9 @@ return 0;
 
                 <entry>Division</entry>
 
-                <entry>check_division_nan</entry>
+                <entry>check_division_invalid_result</entry>
 
-                <entry/>
+                <entry>infinity() / infinity()</entry>
               </row>
             </tbody>
           </tgroup>
@@ -690,7 +742,7 @@ return 0;
 
                 <entry>All Arithmetic</entry>
 
-                <entry>check_nan</entry>
+                <entry>check_invalid_result</entry>
 
                 <entry>check_{addition,subtraction,multiplication,division}_nan</entry>
               </row>
@@ -717,6 +769,18 @@ return 0;
             </tbody>
           </tgroup>
         </table>
+
+        <para>For combining the Policies a check_composer class is used called
+        compose_check, this class recieves the FP datatypes as first template
+        parameter and the list of policies to be composed into the new
+        policy.</para>
+
+        <para>The composed policy, will call sequentially each pre and post
+        condition on each policy and return false if any check returns false,
+        and true when every check returned true.</para>
+
+        <para>The composed policies listed in previous check are defined using
+        the compose_check in the convenience header file.</para>
       </section>
 
       <section>
@@ -804,8 +868,8 @@ return 0;
 
             <listitem>
               <para>has_signaling_NaN is true if the wraped type has signaling
-              NaN and no check is introduced by the wrapper to catch them.
-              </para>
+              NaN and no check is introduced by the wrapper to catch
+              them.</para>
             </listitem>
 
             <listitem>
@@ -822,7 +886,7 @@ return 0;
 
         <para>Each CHECK policy is implemented using fenv functions and
         without using fenv functions. The selection of which implementation is
-        compiled is seleceted by the FENV_AVAILABLE constant. This constant is
+        compiled is selected by the FENV_AVAILABLE constant. This constant is
         passed to the compiler automaticly by the b2 script if the pragma to
         make them safe is available.</para>
       </section>
@@ -835,7 +899,7 @@ return 0;
     <para>Helper functions are defined for common day-to-day
     operations.</para>
 
-    <para>BSF-COMBINE</para>
+    <para>safe_cast and safe_compare</para>
 
     <programlisting>Functions code ;</programlisting>
 
@@ -845,7 +909,8 @@ return 0;
   <section id="safe_float.exceptionsafety">
     <title>Exception safety</title>
 
-    <para>This library covers ...</para>
+    <para>This library covers Strong Guarantee for every type, including the
+    policies. </para>
 
     <para/>
   </section>
@@ -895,8 +960,6 @@ return 0;
   <section id="safe_float.references">
     <title>References</title>
 
-    <para/>
-
     <itemizedlist>
       <listitem>
         <para>[1] Goldberg, David. "What every computer scientist should know
@@ -907,7 +970,18 @@ return 0;
 
     <para><itemizedlist>
         <listitem>
-          <para>[2]</para>
+          <para>[2] <ulink
+          url="http://www.intel.fr/content/dam/www/public/us/en/documents/manuals/64-ia-32-architectures-software-developer-instruction-set-reference-manual-325383.pdf">Intel®
+          64 and IA-32 Architectures Software Developer’s Manual - Volume
+          2</ulink> (specially sections about FP flags in FADD, FSUB, FMUL and
+          FDIV)</para>
+        </listitem>
+
+        <listitem>
+          <para>[3] <ulink
+          url="https://software.intel.com/en-us/articles/x87-and-sse-floating-point-assists-in-ia-32-flush-to-zero-ftz-and-denormals-are-zero-daz">x87
+          and SSE Floating Point Assists in IA-32: Flush-To-Zero (FTZ) and
+          Denormals-Are-Zero (DAZ)</ulink></para>
         </listitem>
       </itemizedlist></para>
   </section>
