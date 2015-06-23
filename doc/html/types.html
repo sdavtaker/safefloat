@@ -21,12 +21,12 @@
 <div class="titlepage"><div><div><h2 class="title" style="clear: both">
 <a name="safe_float.types"></a>Types</h2></div></div></div>
 <div class="toc"><dl>
-<dt><span class="section"><a href="types.html#idp140500700362336">safe_float&lt;FP, CHECK, ERROR_HANDLING, CAST&gt;</a></span></dt>
-<dt><span class="section"><a href="types.html#idp140500700363936">Policy classes</a></span></dt>
+<dt><span class="section"><a href="types.html#idp140514479403584">safe_float&lt;FP, CHECK, ERROR_HANDLING, CAST&gt;</a></span></dt>
+<dt><span class="section"><a href="types.html#idp140514479405184">Policy classes</a></span></dt>
 </dl></div>
 <div class="section">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="idp140500700362336"></a>safe_float&lt;FP, CHECK, ERROR_HANDLING, CAST&gt;</h3></div></div></div>
+<a name="idp140514479403584"></a>safe_float&lt;FP, CHECK, ERROR_HANDLING, CAST&gt;</h3></div></div></div>
 <p>This type is the safe_float core, it wraps a FP floating point
       data type. Every operation over this datatype is checked using the CHECK
       policy. When a check fails, it is reported to the user following the
@@ -35,18 +35,18 @@
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="idp140500700363936"></a>Policy classes</h3></div></div></div>
+<a name="idp140514479405184"></a>Policy classes</h3></div></div></div>
 <p>A long set of instances for each policy is provided with the
       safe_float library.</p>
 <div class="section">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="idp140500700365056"></a>CHECK Policy classes</h4></div></div></div>
+<a name="idp140514479406304"></a>CHECK Policy classes</h4></div></div></div>
 <p>CHECK policies define the conditions to be evaluated when
-        operating. </p>
+        operating.</p>
 <p>The table shows how the policies defined in the library interact
         with each operation and danger.</p>
 <div class="table">
-<a name="idp140500700366656"></a><p class="title"><b>Table&#160;1.&#160;Table of CHECK policies</b></p>
+<a name="idp140514479407824"></a><p class="title"><b>Table&#160;1.&#160;Table of CHECK policies</b></p>
 <div class="table-contents"><table class="table" summary="Table of CHECK policies">
 <colgroup>
 <col>
@@ -101,25 +101,27 @@
 <td>Inexact Rounding</td>
 <td>Multiplication</td>
 <td>check_multiplication_inexact_rounding</td>
-<td>&#160;</td>
+<td>(2*((2^digits)-1))*((2^digits)-1)</td>
 </tr>
 <tr>
 <td>Inexact Rounding</td>
 <td>Division</td>
 <td>check_division_inexact_rounding</td>
-<td>1.0 / 10.0</td>
+<td>1.0 / 3.0</td>
 </tr>
 <tr>
 <td>Underflow</td>
 <td>Addition</td>
 <td>check_addition_underflow</td>
-<td>&#160;</td>
+<td> 2.2250738585072019e-308 +
+                -2.2250738585072014e-308</td>
 </tr>
 <tr>
 <td>Underflow</td>
 <td>Subtraction</td>
 <td>check_subtraction_underflow</td>
-<td>&#160;</td>
+<td>2.2250738585072019e-308 -
+                2.2250738585072014e-308</td>
 </tr>
 <tr>
 <td>Underflow</td>
@@ -131,37 +133,37 @@
 <td>Underflow</td>
 <td>Division</td>
 <td>check_division_underflow</td>
-<td>&#160;</td>
+<td>min() / max()</td>
 </tr>
 <tr>
 <td>Division by zero</td>
 <td>Division</td>
 <td>check_division_by_zero</td>
-<td>1.0/0.0</td>
+<td>1.0 / 0.0</td>
 </tr>
 <tr>
 <td>Invalid Result (NAN)</td>
 <td>Addition</td>
-<td>check_addition_nan</td>
-<td>&#160;</td>
+<td>check_addition_invalid_result</td>
+<td>infinity() + (- infinity())</td>
 </tr>
 <tr>
 <td>Invalid Result (NAN)</td>
 <td>Subtraction</td>
-<td>check_subtraction_nan</td>
-<td>&#160;</td>
+<td>check_subtraction_invalid_result</td>
+<td>infinity() - infinity()</td>
 </tr>
 <tr>
 <td>Invalid Result (NAN)</td>
 <td>Multiplication</td>
-<td>check_multiplication_nan</td>
-<td>&#160;</td>
+<td>check_multiplication_invalid_result</td>
+<td>infinity() * 0.0</td>
 </tr>
 <tr>
 <td>Invalid Result (NAN)</td>
 <td>Division</td>
-<td>check_division_nan</td>
-<td>&#160;</td>
+<td>check_division_invalid_result</td>
+<td>infinity() / infinity()</td>
 </tr>
 </tbody>
 </table></div>
@@ -173,7 +175,7 @@
 <p>The following is a table of convenient combined policies already
         available in the library and their components.</p>
 <div class="table">
-<a name="idp140500700403376"></a><p class="title"><b>Table&#160;2.&#160;Table of CHECK composed policies</b></p>
+<a name="idp140514479445728"></a><p class="title"><b>Table&#160;2.&#160;Table of CHECK composed policies</b></p>
 <div class="table-contents"><table class="table" summary="Table of CHECK composed policies">
 <colgroup>
 <col>
@@ -209,7 +211,7 @@
 <tr>
 <td>Invalid Result</td>
 <td>All Arithmetic</td>
-<td>check_nan</td>
+<td>check_invalid_result</td>
 <td>check_{addition,subtraction,multiplication,division}_nan</td>
 </tr>
 <tr>
@@ -227,11 +229,19 @@
 </tbody>
 </table></div>
 </div>
-<br class="table-break">
+<br class="table-break"><p>For combining the Policies a check_composer class is used called
+        compose_check, this class recieves the FP datatypes as first template
+        parameter and the list of policies to be composed into the new
+        policy.</p>
+<p>The composed policy, will call sequentially each pre and post
+        condition on each policy and return false if any check returns false,
+        and true when every check returned true.</p>
+<p>The composed policies listed in previous check are defined using
+        the compose_check in the convenience header file.</p>
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="idp140500700419424"></a>ERROR_HANDLING Policy classes</h4></div></div></div>
+<a name="idp140514479463488"></a>ERROR_HANDLING Policy classes</h4></div></div></div>
 <p>ERROR_HANDLING policies are focus in how a validation failure is
         notified to the user.</p>
 <p>Options are:</p>
@@ -252,7 +262,7 @@
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="idp140500700426432"></a>CAST Policy classes</h4></div></div></div>
+<a name="idp140514479470496"></a>CAST Policy classes</h4></div></div></div>
 <p>CAST policies define how the safe_float instance will play with
         other data types.</p>
 <p>Options implemented by the library are:
@@ -268,7 +278,7 @@
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="idp140500700430080"></a>Numeric Limits</h4></div></div></div>
+<a name="idp140514479474144"></a>Numeric Limits</h4></div></div></div>
 <p>In safe_float a new specialization of numeric_limits is defined
         for each wrapped number. For most functions and constants the values
         are obtained from the original number.</p>
@@ -281,8 +291,8 @@
 <li class="listitem"><p>has_quiet_NaN is true if the wraped type has quiet NaN and
               no check is introduced by the wrapper to catch them.</p></li>
 <li class="listitem"><p>has_signaling_NaN is true if the wraped type has signaling
-              NaN and no check is introduced by the wrapper to catch them.
-              </p></li>
+              NaN and no check is introduced by the wrapper to catch
+              them.</p></li>
 <li class="listitem"><p>Functions returning a safe_float: min, max, lowest,
               quit_NaN, signaling_NaN, epsilon, round_error, infinity,
               denorm_min. They return the value returned by the wrapped type
@@ -291,10 +301,10 @@
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="idp140500700436208"></a>FENV_AVAILABLE constant</h4></div></div></div>
+<a name="idp140514479480272"></a>FENV_AVAILABLE constant</h4></div></div></div>
 <p>Each CHECK policy is implemented using fenv functions and
         without using fenv functions. The selection of which implementation is
-        compiled is seleceted by the FENV_AVAILABLE constant. This constant is
+        compiled is selected by the FENV_AVAILABLE constant. This constant is
         passed to the compiler automaticly by the b2 script if the pragma to
         make them safe is available.</p>
 </div>

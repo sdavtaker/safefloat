@@ -21,13 +21,15 @@
 <div class="titlepage"><div><div><h2 class="title" style="clear: both">
 <a name="safe_float.introduction"></a>Introduction</h2></div></div></div>
 <div class="toc"><dl>
-<dt><span class="section"><a href="introduction.html#idp140500700307744">Motivation</a></span></dt>
-<dt><span class="section"><a href="introduction.html#idp140500700326656">Goals</a></span></dt>
-<dt><span class="section"><a href="introduction.html#idp140500700333680">Current state</a></span></dt>
+<dt><span class="section"><a href="introduction.html#idp140514479341504">Motivation</a></span></dt>
+<dt><span class="section"><a href="introduction.html#idp140514479360160">Goals</a></span></dt>
+<dt><span class="section"><a href="introduction.html#idp140514479367184">Scope</a></span></dt>
+<dt><span class="section"><a href="introduction.html#idp140514479368928">Requirements</a></span></dt>
+<dt><span class="section"><a href="introduction.html#idp140514479376064">Current state</a></span></dt>
 </dl></div>
 <div class="section">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="idp140500700307744"></a>Motivation</h3></div></div></div>
+<a name="idp140514479341504"></a>Motivation</h3></div></div></div>
 <p>Arithmetic operations in C++ are NOT guaranteed to yield a correct
       mathematical result. For instance, the overflow on addition operation
       may produce an infinite value. Safe Float proposes implementing a
@@ -147,7 +149,7 @@ safe_numerics&lt;double, BSF_COMBINE(no_rounding-no_overflow_to_infinity)&gt; j 
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="idp140500700326656"></a>Goals</h3></div></div></div>
+<a name="idp140514479360160"></a>Goals</h3></div></div></div>
 <div class="itemizedlist"><ul class="itemizedlist" type="disc">
 <li class="listitem">
 <p>Provide a drop-in replacement for Floating Point data types
@@ -169,10 +171,50 @@ safe_numerics&lt;double, BSF_COMBINE(no_rounding-no_overflow_to_infinity)&gt; j 
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="idp140500700333680"></a>Current state</h3></div></div></div>
-<p>Safe float does provides numeric_limits, base policies and a
-      policy to handle overflow to infinte on the addition using compilers
-      supporting FENV and not supporting it.</p>
+<a name="idp140514479367184"></a>Scope</h3></div></div></div>
+<p>Current implementation expects to apply the policies to the native
+      Floating Point types :float, double, long double.</p>
+<p>Extending to support Boost.Multiprecission is planned as future
+      work.</p>
+</div>
+<div class="section">
+<div class="titlepage"><div><div><h3 class="title">
+<a name="idp140514479368928"></a>Requirements</h3></div></div></div>
+<p>safe_float is a headers-only library with few requirements:</p>
+<div class="itemizedlist"><ul class="itemizedlist" type="disc">
+<li class="listitem"><p>A compiler supporting C++11 standard.</p></li>
+<li class="listitem"><p>A compiler supporting pragma FENV is not required, but
+            better performance is expected when supported.</p></li>
+</ul></div>
+<div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p>For building examples and tests B2 is used.</p></li></ul></div>
+<div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p>Some examples may have require extra dependencies from Boost,
+          including Boost.ProgramOptions.</p></li></ul></div>
+<div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p>Tests are implemented using Boost.Test compiled version and
+          they require also Boost.MPL.</p></li></ul></div>
+</div>
+<div class="section">
+<div class="titlepage"><div><div><h3 class="title">
+<a name="idp140514479376064"></a>Current state</h3></div></div></div>
+<p>Safe float currently provides numeric_limits, and complete set of
+      check policies, including fine grain policies as
+      "check_addition_overflow" and coarse grain as "check_all". Composers for
+      policies are provided to allow the user select the kind of issues to be
+      trapped. Composed set of policies is also provided for
+      convenience.</p>
+<p>B2 scripts detect if current compiler has support for FENV pragma,
+      and uses it when supported.</p>
+<p>Only one policy is implemented for cast and error_handling so
+      far.</p>
+<p>Tests are not yet complete for underflow and invalid result
+      policies. </p>
+<p>FENV enabled implementation was never tested since g++ and clang++
+      does not support it yet.</p>
+<p>The library was tested mostly using clang.</p>
+<p>The exception strong guarantee may have been broken in some
+      places, this is a temporary problem. </p>
+<p>The throw_on_error policy is throwing always std::exception,
+      subclasses of it might be used in the future to provide finer grain
+      catching.</p>
 </div>
 </div>
 <table xmlns:rev="http://www.cs.rpi.edu/~gregod/boost/tools/doc/revision" width="100%"><tr>

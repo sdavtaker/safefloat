@@ -35,8 +35,8 @@ cout &lt;&lt; "b is " &lt;&lt; b &lt;&lt; endl; //outputs: b is inf
 return 0;
 }</pre>
 <p>If we replace the type used by both variables to
-    safe_float&lt;float, no_overflow_on_addition&gt;, the addition would have
-    throw an exception to inform the user.</p>
+    safe_float&lt;float, check_addition_overflow&gt;, the addition would have
+    thrown an exception to inform the user.</p>
 <pre class="programlisting">#include &lt;iostream&gt;
 #include &lt;limits&gt;
 #include &lt;boost/safe_float.hpp&gt;
