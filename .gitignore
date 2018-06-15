@@ -32,3 +32,13 @@ build
 doc/html/*.html
 doc/html/pre-boost.jpg
 doc/boostbook/HTML.manifest
+CMakeCache.txt
+CMakeFiles
+CMakeScripts
+CTestTestfile.cmake
+Debug
+Testing
+cmake_install.cmake
+safefloat.build
+safefloat.xcodeproj
+
