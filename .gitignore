@@ -43,5 +43,5 @@ safefloat.build
 safefloat.xcodeproj
 
 #BoostBook generated files
-html/safe_float/
-html/safefloat_HTML.manifest
+doc/html/safe_float/
+doc/html/safefloat_HTML.manifest
