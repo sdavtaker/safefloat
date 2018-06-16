@@ -42,3 +42,6 @@ cmake_install.cmake
 safefloat.build
 safefloat.xcodeproj
 
+#BoostBook generated files
+html/safe_float/
+html/safefloat_HTML.manifest
