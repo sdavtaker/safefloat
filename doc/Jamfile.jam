@@ -1,0 +1,1 @@
+boostbook safefloat : boostbook/safefloat.xml : <xsl:param>boost.root=/Users/dvicino/Downloads/boost_1_67_0 ;
