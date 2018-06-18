@@ -12,3 +12,5 @@ Requirements
 Makefiles
 -- To build examples and tests use b2 tool from Boost.
 
+Documentation
+-- [Safefloat manual](https://sdavtaker.github.io/safefloat/doc/html/index.html)
