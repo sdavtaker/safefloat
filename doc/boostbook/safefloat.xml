@@ -156,21 +156,21 @@ return 0;
 
       <programlisting>//no underflow example
 
-safe_numerics&lt;double, no_underflow&gt; a = 1;
+safe_numerics&lt;double, no_underflow, throw_on_fail&gt; a = 1;
 
-safe_numerics&lt;double, no_underflow&gt; b = numeric_limits&lt;double&gt;::max();
+safe_numerics&lt;double, no_underflow, throw_on_fail&gt; b = numeric_limits&lt;double&gt;::max();
 
-safe_numerics&lt;double, no_underflow&gt; c =  a / b ; //throws because of underflow.
+safe_numerics&lt;double, no_underflow, throw_on_fail&gt; c =  a / b ; //throws because of underflow.
 
 //no rounding example
 
-safe_numerics&lt;double, no_rounding&gt; d = 0.3; // compilation error, the number is not representable.
+safe_numerics&lt;double, no_rounding, abort_on_fail&gt; d = 0.3; // compilation error, the number is not representable.
 
-safe_numerics&lt;double, no_rounding&gt; e = 2E25; 
+safe_numerics&lt;double, no_rounding, abort_on_fail&gt; e = 2E25; 
 
-safe_numerics&lt;double, no_rounding&gt; f = 2E100;
+safe_numerics&lt;double, no_rounding, abort_on_fail&gt; f = 2E100;
 
-safe_numerics&lt;double, no_rounding&gt; g = e + f ; //throws because of operation rounding.
+safe_numerics&lt;double, no_rounding, abort_on_fail&gt; g = e + f ; //aborts execution with runtime error.
 
 //multiple conditions example
 
@@ -211,7 +211,7 @@ safe_numerics&lt;double, BSF_COMBINE(no_rounding-no_overflow_to_infinity)&gt; j 
 
           <listitem>
             <para>The implementation should be flexible to let the user decide
-            what to check, how to inform and</para>
+            what to check and how to inform when check fails.</para>
           </listitem>
 
           <listitem>
@@ -225,7 +225,7 @@ safe_numerics&lt;double, BSF_COMBINE(no_rounding-no_overflow_to_infinity)&gt; j 
       <title>Scope</title>
 
       <para>Current implementation expects to apply the policies to the native
-      Floating Point types :float, double, long double.</para>
+      Floating Point types: float, double, long double.</para>
 
       <para>Extending to support Boost.Multiprecission is planned as future
       work.</para>
@@ -238,7 +238,7 @@ safe_numerics&lt;double, BSF_COMBINE(no_rounding-no_overflow_to_infinity)&gt; j 
 
       <para><itemizedlist>
           <listitem>
-            <para>A compiler supporting C++11 standard.</para>
+            <para>A compiler supporting C++17 standard.</para>
           </listitem>
 
           <listitem>
@@ -250,13 +250,14 @@ safe_numerics&lt;double, BSF_COMBINE(no_rounding-no_overflow_to_infinity)&gt; j 
       <para><itemizedlist>
           <listitem>
             <para>For building examples and tests B2 is used.</para>
+            <para>Alternatively support for cmake is also offered. </para>
           </listitem>
         </itemizedlist></para>
 
       <itemizedlist>
         <listitem>
           <para>Some examples may have require extra dependencies from Boost,
-          including Boost.ProgramOptions.</para>
+          including Boost.ProgramOptions, but these dependencies are not necessary for using the library.</para>
         </listitem>
       </itemizedlist>
 
@@ -374,7 +375,7 @@ return 0;
 
     <para>Here, assert will be used in place of throw aborting execution and
     informing in debug mode, but having no impact at all in the release mode.
-    Other alternatives include abort_on_fail and log_on_fail.</para>
+    Other alternatives include abort_on_fail, throw_on_fail, unexpected_on_fail, and log_on_fail.</para>
 
     <para>Another template parameter available is the conversion (or cast)
     policy, this is responsable of deciding how the data type will play with
@@ -398,7 +399,24 @@ a += 3.14f; //ok because of accept_wrappedtype_params
 
 return 0;
 }</programlisting></para>
+
+<para> The opposite would be to chose policy::strict_type, which only accepts values produced using safefloat operations
+or literals constructed using the safefloat literal suffix.</para>
+<para><programlisting>
+include &lt;iostream&gt;
+#include &lt;limits&gt;
+#include &lt;boost/safe_float.hpp&gt;
+
+int main(){
+using namespace std;
+using namespace boost::safe_float;
+safe_float&lt;float,policy::check_overflow,policy::on_fail_assert,policy::strict_type&gt; a = numeric_limits&lt;float&gt;::max(); // fails compilation because max is not using safefloat literal suffix
+safe_float &lt;float,policy::check_overflow,policy::on_fail_assert,policy::strict_type&gt; b = 0.3_sf; //fails compilation because 0.3 is not representable in float
+safe_float &lt;float,policy::check_overflow,policy::on_fail_assert,policy::strict_type&gt; b = 0.5_sf; //constructs succesfully a safefloat of internal value 0.5f
+</programlisting></para>
   </section>
+
+  
 
   <section id="safe_float.notes">
     <title>Notes</title>
@@ -448,7 +466,8 @@ return 0;
           <para>ERROR_HANDLING policies define how the user would to be
           notified in the case a CHECK fails. A single method is required from
           these classes, report_failure on which a exception can be thrown, a
-          message can be output on std::cerr, or any other method.</para>
+          message can be output on std::cerr, a unexpected could be returned, 
+          an abort can be executed, or any other method.</para>
         </listitem>
 
         <listitem>
@@ -816,6 +835,12 @@ return 0;
             <para>on_fail_cerr : This is a particular case of on_fail_log.
             Here the log is output to stadard error.</para>
           </listitem>
+
+          <listitem>
+            <para>on_fail_unexpected (experimental) : This adds support to wrap 
+            safe_float into a Boost.Expected class, and return unexpected on check fail.</para>
+          </listitem>
+
         </itemizedlist>
 
         <para>Extending the list of options is as easy as defining a class
@@ -841,7 +866,8 @@ return 0;
         <para>In cast_both_ways, both of previous casts are
         implemented.</para>
 
-        <para>In no_cast, nothing is casted.</para>
+        <para>In no_cast, nothing is casted. In this case all operations have to receive an safe_float, 
+        and the only way to construct new values is using safe_float literals "_sf", "_sd", "_sld".</para>
       </section>
 
       <section>
@@ -888,32 +914,19 @@ return 0;
         without using fenv functions. The selection of which implementation is
         compiled is selected by the FENV_AVAILABLE constant. This constant is
         passed to the compiler automaticly by the b2 script if the pragma to
-        make them safe is available.</para>
+        make them safe is available. This convenient detection was not 
+        implemented in cmake scripts yet.</para>
       </section>
+  
+	 <section id="safe_float.exceptionsafety">
+	    <title>Exception safety</title>
+	
+	    <para>This library covers Strong Guarantee for every type, including the
+	    policies. </para>
+	
+	 </section>
     </section>
-  </section>
-
-  <section id="safe_float.functions">
-    <title>Functions</title>
-
-    <para>Helper functions are defined for common day-to-day
-    operations.</para>
-
-    <para>safe_cast and safe_compare</para>
-
-    <programlisting>Functions code ;</programlisting>
-
-    <para/>
-  </section>
-
-  <section id="safe_float.exceptionsafety">
-    <title>Exception safety</title>
-
-    <para>This library covers Strong Guarantee for every type, including the
-    policies. </para>
-
-    <para/>
-  </section>
+</section>
 
   <section id="safe_float.rationale">
     <title>Rationale</title>
