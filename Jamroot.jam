@@ -9,7 +9,7 @@ project safefloat
     : requirements
         <include>$(BOOST_ROOT)
 	<cxxflags>-pedantic
-        <cxxflags>-std=c++11
+        <cxxflags>-std=c++17
     : build-dir ./build
 ;
 
