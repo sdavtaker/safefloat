@@ -5,3 +5,4 @@
 !.gitignore
 !index.html
 !doc/html
+!doc/html/safe_float/*

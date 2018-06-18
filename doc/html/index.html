@@ -17,9 +17,9 @@
 <div><div class="author"><h3 class="author">
 <span class="firstname">Dami&#225;n</span> <span class="surname">Vicino</span>
 </h3></div></div>
-<div><p class="copyright">Copyright &#169; 2015 Dami&#225;n Vicino</p></div>
+<div><p class="copyright">Copyright &#169; 2015-2018 Dami&#225;n Vicino</p></div>
 <div><div class="legalnotice">
-<a name="idm459348664448"></a><p><a href="http://www.boost.org/users/license.html" target="_top">BOOST
+<a name="idm472914368160"></a><p><a href="http://www.boost.org/users/license.html" target="_top">BOOST
       License</a></p>
 </div></div>
 </div></div>
@@ -28,20 +28,20 @@
 <dl>
 <dt><span class="section"><a href="index.html#safe_float.introduction">Introduction</a></span></dt>
 <dd><dl>
-<dt><span class="section"><a href="index.html#idm459348662464">Motivation</a></span></dt>
-<dt><span class="section"><a href="index.html#idm459348643616">Goals</a></span></dt>
-<dt><span class="section"><a href="index.html#idm459348636512">Scope</a></span></dt>
-<dt><span class="section"><a href="index.html#idm459348634768">Requirements</a></span></dt>
-<dt><span class="section"><a href="index.html#idm459348627120">Current state</a></span></dt>
+<dt><span class="section"><a href="index.html#idm472914366368">Motivation</a></span></dt>
+<dt><span class="section"><a href="index.html#idm472914347888">Goals</a></span></dt>
+<dt><span class="section"><a href="index.html#idm472914340784">Scope</a></span></dt>
+<dt><span class="section"><a href="index.html#idm472914339040">Requirements</a></span></dt>
+<dt><span class="section"><a href="index.html#idm472914331392">Current state</a></span></dt>
 </dl></dd>
 <dt><span class="section"><a href="safe_float/tutorial.html">Tutorial</a></span></dt>
 <dt><span class="section"><a href="safe_float/notes.html">Notes</a></span></dt>
 <dt><span class="section"><a href="safe_float/concepts.html">Concepts</a></span></dt>
-<dd><dl><dt><span class="section"><a href="safe_float/concepts.html#idm459348604784">Policy classes</a></span></dt></dl></dd>
+<dd><dl><dt><span class="section"><a href="safe_float/concepts.html#idm472914309056">Policy classes</a></span></dt></dl></dd>
 <dt><span class="section"><a href="safe_float/types.html">Types</a></span></dt>
 <dd><dl>
-<dt><span class="section"><a href="safe_float/types.html#idm459348598192">safe_float&lt;FP, CHECK, ERROR_HANDLING, CAST&gt;</a></span></dt>
-<dt><span class="section"><a href="safe_float/types.html#idm459348596592">Policy classes</a></span></dt>
+<dt><span class="section"><a href="safe_float/types.html#idm472914302464">safe_float&lt;FP, CHECK, ERROR_HANDLING, CAST&gt;</a></span></dt>
+<dt><span class="section"><a href="safe_float/types.html#idm472914300864">Policy classes</a></span></dt>
 </dl></dd>
 <dt><span class="section"><a href="safe_float/rationale.html">Rationale</a></span></dt>
 <dt><span class="section"><a href="safe_float/changelog.html">Change Log</a></span></dt>
@@ -52,15 +52,15 @@
 <div class="titlepage"><div><div><h2 class="title" style="clear: both">
 <a name="safe_float.introduction"></a>Introduction</h2></div></div></div>
 <div class="toc"><dl>
-<dt><span class="section"><a href="index.html#idm459348662464">Motivation</a></span></dt>
-<dt><span class="section"><a href="index.html#idm459348643616">Goals</a></span></dt>
-<dt><span class="section"><a href="index.html#idm459348636512">Scope</a></span></dt>
-<dt><span class="section"><a href="index.html#idm459348634768">Requirements</a></span></dt>
-<dt><span class="section"><a href="index.html#idm459348627120">Current state</a></span></dt>
+<dt><span class="section"><a href="index.html#idm472914366368">Motivation</a></span></dt>
+<dt><span class="section"><a href="index.html#idm472914347888">Goals</a></span></dt>
+<dt><span class="section"><a href="index.html#idm472914340784">Scope</a></span></dt>
+<dt><span class="section"><a href="index.html#idm472914339040">Requirements</a></span></dt>
+<dt><span class="section"><a href="index.html#idm472914331392">Current state</a></span></dt>
 </dl></div>
 <div class="section">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="idm459348662464"></a>Motivation</h3></div></div></div>
+<a name="idm472914366368"></a>Motivation</h3></div></div></div>
 <p>Arithmetic operations in C++ are NOT guaranteed to yield a correct
       mathematical result. For instance, the overflow on addition operation
       may produce an infinite value. Safe Float proposes implementing a
@@ -180,7 +180,7 @@ safe_numerics&lt;double, BSF_COMBINE(no_rounding-no_overflow_to_infinity)&gt; j 
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="idm459348643616"></a>Goals</h3></div></div></div>
+<a name="idm472914347888"></a>Goals</h3></div></div></div>
 <div class="itemizedlist"><ul class="itemizedlist" type="disc">
 <li class="listitem">
 <p>Provide a drop-in replacement for Floating Point data types
@@ -202,7 +202,7 @@ safe_numerics&lt;double, BSF_COMBINE(no_rounding-no_overflow_to_infinity)&gt; j 
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="idm459348636512"></a>Scope</h3></div></div></div>
+<a name="idm472914340784"></a>Scope</h3></div></div></div>
 <p>Current implementation expects to apply the policies to the native
       Floating Point types: float, double, long double.</p>
 <p>Extending to support Boost.Multiprecission is planned as future
@@ -210,7 +210,7 @@ safe_numerics&lt;double, BSF_COMBINE(no_rounding-no_overflow_to_infinity)&gt; j 
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="idm459348634768"></a>Requirements</h3></div></div></div>
+<a name="idm472914339040"></a>Requirements</h3></div></div></div>
 <p>safe_float is a headers-only library with few requirements:</p>
 <div class="itemizedlist"><ul class="itemizedlist" type="disc">
 <li class="listitem"><p>A compiler supporting C++17 standard.</p></li>
@@ -228,7 +228,7 @@ safe_numerics&lt;double, BSF_COMBINE(no_rounding-no_overflow_to_infinity)&gt; j 
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="idm459348627120"></a>Current state</h3></div></div></div>
+<a name="idm472914331392"></a>Current state</h3></div></div></div>
 <p>Safe float currently provides numeric_limits, and complete set of
       check policies, including fine grain policies as
       "check_addition_overflow" and coarse grain as "check_all". Composers for
@@ -253,7 +253,7 @@ safe_numerics&lt;double, BSF_COMBINE(no_rounding-no_overflow_to_infinity)&gt; j 
 </div>
 </div>
 <table xmlns:rev="http://www.cs.rpi.edu/~gregod/boost/tools/doc/revision" width="100%"><tr>
-<td align="left"><p><small>Last revised: February , 2015</small></p></td>
+<td align="left"><p><small>Last revised: June , 2018</small></p></td>
 <td align="right"><div class="copyright-footer"></div></td>
 </tr></table>
 <hr>
