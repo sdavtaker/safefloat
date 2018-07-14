@@ -5,15 +5,24 @@ set (safefloat_VERSION_MAJOR 0)
 set (safefloat_VERSION_MINOR 0)
 set (safefloat_VERSION_PATCH 0)
 
-include(CheckCXXCompilerFlag)
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake-modules")
 
-find_package(Boost COMPONENTS unit_test_framework REQUIRED)
+IF(CMAKE_BUILD_TYPE MATCHES Debug)
+    message("debug mode")
+    include(CodeCoverage)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS_DEBUG} -Wall -g -O0 -fprofile-arcs -ftest-coverage")
+ENDIF(CMAKE_BUILD_TYPE MATCHES Debug)
+
 
 add_library(safefloat INTERFACE)
 
+#Boost
+set(Boost_USE_MULTITHREADED OFF)
+find_package(Boost COMPONENTS unit_test_framework REQUIRED)
 include_directories(include ${Boost_INCLUDE_DIRS})
 
 # Check for standard to use
+include(CheckCXXCompilerFlag)
 check_cxx_compiler_flag(-std=c++17 HAVE_FLAG_STD_CXX17)
 if(HAVE_FLAG_STD_CXX17)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pedantic --std=c++17")
@@ -60,8 +69,6 @@ foreach(testCmpFailSrc ${TestCompileFailSources})
 endforeach(testCmpFailSrc)
 
 # Examples
-
-
 FILE(GLOB ExampleSources RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} examples/example_*.cpp)
 foreach(exampleSrc ${ExampleSources})
         get_filename_component(exampleName ${exampleSrc} NAME_WE)
