@@ -39,9 +39,9 @@
       <para>Arithmetic operations in C++ are NOT guaranteed to yield a correct
       mathematical result. For instance, the overflow on addition operation
       may produce an infinite value. Safe Float proposes implementing a
-      drop-in replacement for floating point numeric data types guaranteing
-      that, when used in expressions in a C++ program, no incorrect arithmetic
-      results will be produced without the developer awareness.</para>
+      drop-in replacement for floating point numeric data types guaranteeing
+      that, when used in expressions in a C++ program, no unexpected arithmetic
+      results will be produced silently without the developer awareness.</para>
 
       <para>An example of the problem:</para>
 
@@ -63,7 +63,7 @@ return 0;
 
       <para>This is a convenient fallback for the overflow in some contexts,
       but an unexpected silent surprise in others. Overflow to infinite is not
-      the only surprice silently introduced by floating point operations,
+      the only surprise silently introduced by floating point operations,
       neither the most dangerous. it is actually the one most programmers care
       to check.</para>
 
@@ -152,6 +152,10 @@ return 0;
       used, we propose letting developers declare their concerns using
       template parameters as policies.</para>
 
+      <para> We try to provide policies for most of the dangers before mentioned. However,
+      some of the checks may be missing. To see the full list of the checks implemented by
+      safe_float please check the Policies section of the documentation. </para>
+
       <para>We show some usage examples below for illustration.</para>
 
       <programlisting>//no underflow example
@@ -174,21 +178,21 @@ safe_numerics&lt;double, no_rounding, abort_on_fail&gt; g = e + f ; //aborts exe
 
 //multiple conditions example
 
-safe_numerics&lt;double, BSF_COMBINE(no_rounding,no_overflow_to_infinity)&gt; h = numeric_limits&lt;double&gt;::max();
+safe_numerics&lt;double, BSF_COMBINE(no_rounding, no_overflow_to_infinity)&gt; h = numeric_limits&lt;double&gt;::max();
 
-safe_numerics&lt;double, BSF_COMBINE(no_rounding,no_overflow_to_infinity)&gt; i =  numeric_limits&lt;double&gt;::max();
+safe_numerics&lt;double, BSF_COMBINE(no_rounding, no_overflow_to_infinity)&gt; i =  numeric_limits&lt;double&gt;::max();
 
-safe_numerics&lt;double, BSF_COMBINE(no_rounding-no_overflow_to_infinity)&gt; j = h + i; // throws because of overflow to infinity.</programlisting>
+safe_numerics&lt;double, BSF_COMBINE(no_rounding, no_overflow_to_infinity)&gt; j = h + i; // throws because of overflow to infinity.</programlisting>
 
       <para/>
     </section>
 
     <section>
-      <title>Goals</title>
+      <title>The library</title>
 
       <para><itemizedlist>
           <listitem>
-            <para>Provide a drop-in replacement for Floating Point data types
+            <para>Provides a drop-in replacement for native Floating Point data types
             producing one of the following outcomes for each operation:</para>
 
             <para><itemizedlist>
@@ -202,33 +206,28 @@ safe_numerics&lt;double, BSF_COMBINE(no_rounding-no_overflow_to_infinity)&gt; j 
                 </listitem>
 
                 <listitem>
-                  <para>An exception communicating a safety condition was not
-                  covered or another way to inform user about the
-                  situation.</para>
+                  <para>A (customized) report of the safety condition was not
+                  covered, for example by throwing an exception or loging the violation.</para>
                 </listitem>
               </itemizedlist></para>
           </listitem>
 
           <listitem>
-            <para>The implementation should be flexible to let the user decide
-            what to check and how to inform when check fails.</para>
-          </listitem>
-
-          <listitem>
-            <para>Rules for deciding how to interact with other data types
-            need to be defined, for example enabling/disabling casts.</para>
+            <para>The implementation is based in user defined policies that 
+            encapsulate what to check and how to how to inform when check fails.</para>
           </listitem>
         </itemizedlist></para>
     </section>
 
     <section>
-      <title>Scope</title>
+      <title>Current limitations</title>
 
-      <para>Current implementation expects to apply the policies to the native
-      Floating Point types: float, double, long double.</para>
+      <para>Current implementation apply the policies to the native
+      Floating Point types: float, double, long double. The checks are limited
+      to arithmetic operators and numeric_limits is specialized safe_float</para>
 
       <para>Extending to support Boost.Multiprecission is planned as future
-      work.</para>
+      work. Also, we plan for future work adding support for Boost.Math and std::math.</para>
     </section>
 
     <section>
@@ -242,8 +241,7 @@ safe_numerics&lt;double, BSF_COMBINE(no_rounding-no_overflow_to_infinity)&gt; j 
           </listitem>
 
           <listitem>
-            <para>A compiler supporting pragma FENV is not required, but
-            better performance is expected when supported.</para>
+            <para>A compiler supporting pragma FENV is not required.</para>
           </listitem>
         </itemizedlist></para>
 
@@ -257,7 +255,8 @@ safe_numerics&lt;double, BSF_COMBINE(no_rounding-no_overflow_to_infinity)&gt; j 
       <itemizedlist>
         <listitem>
           <para>Some examples may have require extra dependencies from Boost,
-          including Boost.ProgramOptions, but these dependencies are not necessary for using the library.</para>
+          including Boost.ProgramOptions, but these dependencies are not necessary 
+          for using the library.</para>
         </listitem>
       </itemizedlist>
 
@@ -270,33 +269,17 @@ safe_numerics&lt;double, BSF_COMBINE(no_rounding-no_overflow_to_infinity)&gt; j 
     </section>
 
     <section>
-      <title>Current state</title>
-
-      <para>Safe float currently provides numeric_limits, and complete set of
-      check policies, including fine grain policies as
-      "check_addition_overflow" and coarse grain as "check_all". Composers for
-      policies are provided to allow the user select the kind of issues to be
-      trapped. Composed set of policies is also provided for
-      convenience.</para>
-
+      <title>Current limitations</title>
       <para>B2 scripts detect if current compiler has support for FENV pragma,
-      and uses it when supported.</para>
-
-      <para>Only one policy is implemented for cast and error_handling so
-      far.</para>
-
-      <para>Tests are not yet complete for underflow and invalid result
-      policies. </para>
+      however, it is not detected in cmake builts, neither it is used for optimizations.</para>
 
       <para>FENV enabled implementation was never tested since g++ and clang++
       does not support it yet.</para>
 
-      <para>The library was tested mostly using clang.</para>
-
       <para>The exception strong guarantee may have been broken in some
       places, this is a temporary problem. </para>
 
-      <para>The throw_on_error policy is throwing always std::exception,
+      <para>The throw_on_error reporter is throwing always boost::safe_float_exception,
       subclasses of it might be used in the future to provide finer grain
       catching.</para>
     </section>
@@ -333,8 +316,9 @@ int main(){
 using namespace std;
 using namespace boost::safe_float;
 try {
-    safe_float&lt;float,policy::check_addition_overflow&gt; a = numeric_limits&lt;float&gt;::max();
-    safe_float&lt;float,policy::check_addition_overflow&gt; b = a + a;
+    using sf_without_overflow = safe_float&lt;float,policy::check_addition_overflow&gt;;
+    sf_without_overflow a = numeric_limits&lt;sf_without_overflow &gt;::max();
+    sf_without_overflow b = a + a;
 } catch { const boost::safe_float_exception&amp; e) { 
     cout &lt;&lt; "safe_float required guarantees broken" &lt;&lt; endl;
 }    
@@ -352,12 +336,38 @@ return 0;
     complex checks and affect more operations. The library includes several
     common use compositions under the convenience.hpp file and it is easy to
     introduce new checks for particular purposes if needed. The complete list
-    of policies can be found in the Policies section of the
-    documentation.</para>
+    of policies can be found in the Policies section of the documentation.
+    The list of policies do not restrict to only flags in the FENV being checked, 
+    but also include policies to define how to safe_float plays along with other datatypes. 
+    For example, policy::allow_cast_to&lt;T&gt; defines if a cast to T is allowed or not. </para>
+
+    <para>The following is an example allowing to cast from integer to safe_float 
+    and checking for overflow in additions.</para>
+
+    <para><programlisting>#include &lt;iostream&gt;
+#include &lt;limits&gt;
+#include &lt;boost/safe_float.hpp&gt;
+
+int main(){
+using namespace std;
+using namespace boost::safe_float;
+using sf = safe_float&lt;float,
+                      policy::compose&lt;check_overflow&gt;,
+                      policy::allow_cast_from&lt;int&gt;
+                      &gt;;
+int i = 1;
+double d = 2.0;
+sf a{i}; //works
+sf b{d}; //fails compilation
+
+return 0;
+}</programlisting></para>
 
     <para>In some contexts, as real-time critical systems, the use of
     exceptions is restricted or fully deactivated. For this contexts, it is
-    useful to specify other error handling methods to be used.</para>
+    useful to specify other error handling methods to be used. For a full list
+    of reported methods and how to define a custom one, please check the Concept 
+    reporter documentation.</para>
 
     <para>The following is a example of how to use the library for asserting
     in place of throwing.<programlisting>#include &lt;iostream&gt;
@@ -367,65 +377,26 @@ return 0;
 int main(){
 using namespace std;
 using namespace boost::safe_float;
-safe_float&lt;float,policy::check_overflow,policy::on_fail_assert&gt; a = numeric_limits&lt;float&gt;::max();
-safe_float&lt;float,policy::check_overflow,policy::on_fail_assert&gt; b = a + a;
+using sf_asserting_overflows=safe_float&lt;float,policy::check_overflow&lt;reporter::on_fail_assert&gt;&gt;;
+sf_asserting_overflows a = numeric_limits&lt;sf_asserting_overflows&gt;::max();
+sf_asserting_overflows b = a + a;
 
 return 0;
 }</programlisting></para>
 
     <para>Here, assert will be used in place of throw aborting execution and
     informing in debug mode, but having no impact at all in the release mode.
-    Other alternatives include abort_on_fail, throw_on_fail, unexpected_on_fail, and log_on_fail.</para>
-
-    <para>Another template parameter available is the conversion (or cast)
-    policy, this is responsable of deciding how the data type will play with
-    others. The default is not interacting with any other. In some cases, we
-    would like to accept the wrapped type as parameter of the
-    operations.</para>
-
-    <para>The following is an example allowing addition-assigment with wrapped
-    type parameter.</para>
-
-    <para><programlisting>#include &lt;iostream&gt;
-#include &lt;limits&gt;
-#include &lt;boost/safe_float.hpp&gt;
-
-int main(){
-using namespace std;
-using namespace boost::safe_float;
-safe_float&lt;float,policy::check_overflow,policy::on_fail_assert,policy::accept_wrappedtype_params&gt; a = numeric_limits&lt;float&gt;::max();
-
-a += 3.14f; //ok because of accept_wrappedtype_params
-
-return 0;
-}</programlisting></para>
-
-<para> The opposite would be to chose policy::strict_type, which only accepts values produced using safefloat operations
-or literals constructed using the safefloat literal suffix.</para>
-<para><programlisting>
-include &lt;iostream&gt;
-#include &lt;limits&gt;
-#include &lt;boost/safe_float.hpp&gt;
-
-int main(){
-using namespace std;
-using namespace boost::safe_float;
-safe_float&lt;float,policy::check_overflow,policy::on_fail_assert,policy::strict_type&gt; a = numeric_limits&lt;float&gt;::max(); // fails compilation because max is not using safefloat literal suffix
-safe_float &lt;float,policy::check_overflow,policy::on_fail_assert,policy::strict_type&gt; b = 0.3_sf; //fails compilation because 0.3 is not representable in float
-safe_float &lt;float,policy::check_overflow,policy::on_fail_assert,policy::strict_type&gt; b = 0.5_sf; //constructs succesfully a safefloat of internal value 0.5f
-</programlisting></para>
-  </section>
-
-  
+    Other alternative reporters provided include abort_on_fail, throw_on_fail, 
+    unexpected_on_fail, and log_on_fail.</para>
+</section>
 
   <section id="safe_float.notes">
     <title>Notes</title>
 
     <para>All concepts, types and functions documented are declared in the
-    namespace boost::safe_float, except for the policies with are declared
-    in</para>
-
-    <para> the namespace boost::safe_float::policy.</para>
+    namespace boost::safe_float. Including policies declared
+    in the namespace boost::safe_float::policy, and reporters declared in the
+    namespace boost::safe_float::reporters.</para>
 
     <para>B2 may output an error when detecting FENV, this is just part of the
     detection before compiling, not a real issue.</para>
@@ -434,7 +405,7 @@ safe_float &lt;float,policy::check_overflow,policy::on_fail_assert,policy::stric
     by the policies provided by this library.</para>
 
     <para>All results producing a NaN are considered invalid results by the
-    policies provided by this library. </para>
+    policies provided by this library.</para>
   </section>
 
   <section id="safe_float.concepts">
@@ -445,8 +416,8 @@ safe_float &lt;float,policy::check_overflow,policy::on_fail_assert,policy::stric
     <section>
       <title>Policy classes</title>
 
-      <para>The library supports three kind of policies: CHECK, ERROR_HANDLING
-      and CAST.</para>
+      <para>Policies define how a check is performed and calls the reporter for notification when check fails. 
+      The reporter class is received by template parameter. </para>
 
       <itemizedlist>
         <listitem>
@@ -456,28 +427,27 @@ safe_float &lt;float,policy::check_overflow,policy::on_fail_assert,policy::stric
           calls the pre and post checks defined. Post conditions are those
           doing the actual validation, pre conditions are used to collect
           required information for evaluating the post condition and setup of
-          flags.</para>
+          flags if required.</para>
 
-          <para>Also, CHECK policies define a method for generating the error
-          message called operator_failure_message</para>
-        </listitem>
-
-        <listitem>
-          <para>ERROR_HANDLING policies define how the user would to be
-          notified in the case a CHECK fails. A single method is required from
-          these classes, report_failure on which a exception can be thrown, a
-          message can be output on std::cerr, a unexpected could be returned, 
-          an abort can be executed, or any other method.</para>
-        </listitem>
-
-        <listitem>
-          <para>CAST policies define how will a safe_float play along with
-          other datatypes, for example it will tell if operations are allowed
-          to receive any parameter being the wrapped type in place of a
-          safe_float with exactly the same template parameters. Also, it tells
-          if safe_float can be casted to the wrapped type.</para>
+          <para>CHECK policies also receive a template parameter with a reporter class.
+          The static method report is called on the reporter class when a check fails.</para>
         </listitem>
       </itemizedlist>
+      </section>
+      
+      <section>
+      <title>Reporter classes</title>
+      <para>Reporter classes are used for reporting check failures in policies.</para>
+      <itemizedList>
+        <listitem>
+          <para>
+          The reporter classes define how the user would to be notified in the 
+          case a CHECK fails. A single static method is required from
+          these classes, report_failure on which a exception can be thrown, a
+          message can be output on std::cerr, a unexpected could be returned, 
+          an abort can be executed, or any other behavior decided by the user.</para>
+        </listitem>
+      </itemizedList>
     </section>
   </section>
 
@@ -485,13 +455,11 @@ safe_float &lt;float,policy::check_overflow,policy::on_fail_assert,policy::stric
     <title>Types</title>
 
     <section>
-      <title>safe_float&lt;FP, CHECK, ERROR_HANDLING, CAST&gt;</title>
+      <title>safe_float&lt;FP, REPORTING_CHECK&gt;</title>
 
       <para>This type is the safe_float core, it wraps a FP floating point
-      data type. Every operation over this datatype is checked using the CHECK
-      policy. When a check fails, it is reported to the user following the
-      ERROR_HANDLING policy. If a cast is required by any operation, it should
-      be enabled by CAST policy.</para>
+      data type. Every operation over this datatype is checked and reported by 
+      using the REPORTING_CHECK policy. </para>
     </section>
 
     <section>
@@ -503,8 +471,8 @@ safe_float &lt;float,policy::check_overflow,policy::on_fail_assert,policy::stric
       <section>
         <title>CHECK Policy classes</title>
 
-        <para>CHECK policies define the conditions to be evaluated when
-        operating.</para>
+        <para>CHECK policies are templates that define the conditions to be evaluated when
+        operating. The only parameter they require is the REPORTER class to do the notifications.</para>
 
         <para>The table shows how the policies defined in the library interact
         with each operation and danger.</para>
@@ -697,6 +665,27 @@ safe_float &lt;float,policy::check_overflow,policy::on_fail_assert,policy::stric
 
                 <entry>infinity() / infinity()</entry>
               </row>
+
+              <row>
+                <entry>Cast to</entry>
+
+                <entry>Assignment</entry>
+
+                <entry>allow_cast_to&lt;T&gt;</entry>
+
+                <entry>T x = sf;</entry>
+              </row>
+
+              <row>
+                <entry>Cast from</entry>
+
+                <entry>Assignment</entry>
+
+                <entry>allow_cast_from&lt;T&gt;</entry>
+
+                <entry>T x; sf = x;</entry>
+              </row>
+
             </tbody>
           </tgroup>
         </table>
@@ -704,7 +693,7 @@ safe_float &lt;float,policy::check_overflow,policy::on_fail_assert,policy::stric
         <para>The policies can be combined defining classes that inherit from
         other policies. This requires some glue code in the case the policies
         combined are not 100% orthogonal, this glue is implemented
-        boost::safe_float::compose_check_policy.</para>
+        boost::safe_float::policy::compose.</para>
 
         <para>The following is a table of convenient combined policies already
         available in the library and their components.</para>
@@ -789,30 +778,29 @@ safe_float &lt;float,policy::check_overflow,policy::on_fail_assert,policy::stric
           </tgroup>
         </table>
 
-        <para>For combining the Policies a check_composer class is used called
-        compose_check, this class recieves the FP datatypes as first template
-        parameter and the list of policies to be composed into the new
-        policy.</para>
+        <para>For combining the Policies a composer function is used called
+        policy::compose, the function receives variadic template list of policies
+        and returns a new policy type.</para>
 
         <para>The composed policy, will call sequentially each pre and post
         condition on each policy and return false if any check returns false,
         and true when every check returned true.</para>
 
         <para>The composed policies listed in previous check are defined using
-        the compose_check in the convenience header file.</para>
+        the policy::compose in the convenience header file.</para>
       </section>
 
       <section>
-        <title>ERROR_HANDLING Policy classes</title>
+        <title>Reporting classes</title>
 
-        <para>ERROR_HANDLING policies are focus in how a validation failure is
+        <para>Reporting classes are focus in how a validation failure is
         notified to the user.</para>
 
-        <para>Options are:</para>
+        <para>Options available out of the box are:</para>
 
         <itemizedlist>
           <listitem>
-            <para>on_fail_throw : Throws an safe_float_exception when the
+            <para>on_fail_throw : Throws a safe_float_exception when the
             checks fail.</para>
           </listitem>
 
@@ -844,30 +832,7 @@ safe_float &lt;float,policy::check_overflow,policy::on_fail_assert,policy::stric
         </itemizedlist>
 
         <para>Extending the list of options is as easy as defining a class
-        with the method: void report_failure(std::string&amp; message);</para>
-      </section>
-
-      <section>
-        <title>CAST Policy classes</title>
-
-        <para>CAST policies define how the safe_float instance will play with
-        other data types.</para>
-
-        <para>Options implemented by the library are:
-        cast_wrapped_type_params, cast_to_wrapped_type, cast_both_ways,
-        no_cast.</para>
-
-        <para>In cast_wrapped_type_params, if a operation is called with a
-        parameter of wrapped type, it is casted to safe_float and used.</para>
-
-        <para>In cast_to_wrapped_type, a cast overload is defined to cast the
-        safe_float to its wrapped type.</para>
-
-        <para>In cast_both_ways, both of previous casts are
-        implemented.</para>
-
-        <para>In no_cast, nothing is casted. In this case all operations have to receive an safe_float, 
-        and the only way to construct new values is using safe_float literals "_sf", "_sd", "_sld".</para>
+        with the method: static void report_failure(const std::string&amp; message);</para>
       </section>
 
       <section>
@@ -934,14 +899,13 @@ safe_float &lt;float,policy::check_overflow,policy::on_fail_assert,policy::stric
     <qandaset>
       <qandaentry>
         <question>
-          <para>Why to implement compose_*_policy in place of using variadic
+          <para>Why to implement composer for policy in place of using variadic
           templates.</para>
         </question>
 
         <answer>
-          <para>Variadic Templates can be used only as the last template
-          parameter and we have in mind allowing compose on at least 2 policy
-          parameters, the CHECK and the CAST.</para>
+          <para>Policies can be complex and reusable. We want to allow users to define
+          them using the using keyword for that purpose. Composer allows easily to do that.</para>
         </answer>
       </qandaentry>
     </qandaset>
@@ -950,26 +914,44 @@ safe_float &lt;float,policy::check_overflow,policy::on_fail_assert,policy::stric
       <qandadiv>
         <qandaentry>
           <question>
-            <para>Why all check individual policies derive from check_policy
-            and the compose does it too?</para>
+            <para>Why not all policies derive from same class?</para>
           </question>
 
           <answer>
-            <para>To allow individual policies to be accepted individually
-            with no need for compose, also it simplifies very much the
-            composition.</para>
+            <para>That generate problems with inheritance rules at the composer level making some 
+            methods be reported by compiler as hidden.</para>
+          </answer>
+        </qandaentry>
+      </qandadiv>
+    </qandaset>
+
+    <qandaset>
+      <qandadiv>
+        <qandaentry>
+          <question>
+              <para>What is the difference between safefloat and what I can get from e.g. the Intel compiler by enabling FPEs?</para>
+          </question>
+
+          <answer>
+            <para>In general, the main differences are Flexibility, customization of reporting, and multiplatform/compiler.</para>
+            <itemizedlist>
+              <listitem>Flexibility: Safefloat adds more granular control than FPE. FPE affects every variable in the system the same, while safefloat can be used to enforce some checks for a subgroup of all the floating point variables in the program or library, and even set different checks for different variables.</listitem>            
+              <listitem>Customization of reporting: Safefloat provides more options on how to react to failure. FPE will abort, while safefloat library provides different strategies to act when a check fails, it may be the case that you can expect a check to fail under certain conditions (exceptional behavior). An alternative would be to manually check flags after each operation, in place of doing that, safe float could throw an exception that can be handled properly. </listitem>
+              <listitem>Multiplatform/compiler: Safefloat is C++17 standard compliand and it should work in any compiler implementing that standard.</listitem>
+            </itemizedlist>   
           </answer>
         </qandaentry>
       </qandadiv>
     </qandaset>
   </section>
 
+  
+
   <section id="safe_float.changelog">
     <title>Change Log</title>
 
     <para/>
   </section>
-
   <section id="safe_float.references">
     <title>References</title>
 
