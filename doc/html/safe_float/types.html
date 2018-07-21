@@ -17,40 +17,37 @@
 <div class="titlepage"><div><div><h2 class="title" style="clear: both">
 <a name="safe_float.types"></a>Types</h2></div></div></div>
 <div class="toc"><dl>
-<dt><span class="section"><a href="types.html#idm472914302464">safe_float&lt;FP, CHECK, ERROR_HANDLING, CAST&gt;</a></span></dt>
-<dt><span class="section"><a href="types.html#idm472914300864">Policy classes</a></span></dt>
+<dt><span class="section"><a href="types.html#idm260015734720">safe_float&lt;FP, REPORTING_CHECK&gt;</a></span></dt>
+<dt><span class="section"><a href="types.html#idm260015733376">Policy classes</a></span></dt>
 </dl></div>
 <div class="section">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="idm472914302464"></a>safe_float&lt;FP, CHECK, ERROR_HANDLING, CAST&gt;</h3></div></div></div>
+<a name="idm260015734720"></a>safe_float&lt;FP, REPORTING_CHECK&gt;</h3></div></div></div>
 <p>This type is the safe_float core, it wraps a FP floating point
-      data type. Every operation over this datatype is checked using the CHECK
-      policy. When a check fails, it is reported to the user following the
-      ERROR_HANDLING policy. If a cast is required by any operation, it should
-      be enabled by CAST policy.</p>
+      data type. Every operation over this datatype is checked and reported by 
+      using the REPORTING_CHECK policy. </p>
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="idm472914300864"></a>Policy classes</h3></div></div></div>
+<a name="idm260015733376"></a>Policy classes</h3></div></div></div>
 <div class="toc"><dl>
-<dt><span class="section"><a href="types.html#idm472914299744">CHECK Policy classes</a></span></dt>
-<dt><span class="section"><a href="types.html#idm472914242560">ERROR_HANDLING Policy classes</a></span></dt>
-<dt><span class="section"><a href="types.html#idm472914234624">CAST Policy classes</a></span></dt>
-<dt><span class="section"><a href="types.html#idm472904777296">Numeric Limits</a></span></dt>
-<dt><span class="section"><a href="types.html#idm472904771168">FENV_AVAILABLE constant</a></span></dt>
+<dt><span class="section"><a href="types.html#idm260015732352">CHECK Policy classes</a></span></dt>
+<dt><span class="section"><a href="types.html#idm260015671904">Reporting classes</a></span></dt>
+<dt><span class="section"><a href="types.html#idm260015664064">Numeric Limits</a></span></dt>
+<dt><span class="section"><a href="types.html#idm260015658032">FENV_AVAILABLE constant</a></span></dt>
 <dt><span class="section"><a href="types.html#safe_float.exceptionsafety">Exception safety</a></span></dt>
 </dl></div>
 <p>A long set of instances for each policy is provided with the
       safe_float library.</p>
 <div class="section">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="idm472914299744"></a>CHECK Policy classes</h4></div></div></div>
-<p>CHECK policies define the conditions to be evaluated when
-        operating.</p>
+<a name="idm260015732352"></a>CHECK Policy classes</h4></div></div></div>
+<p>CHECK policies are templates that define the conditions to be evaluated when
+        operating. The only parameter they require is the REPORTER class to do the notifications.</p>
 <p>The table shows how the policies defined in the library interact
         with each operation and danger.</p>
 <div class="table">
-<a name="idm472914298224"></a><p class="title"><b>Table&#160;1.1.&#160;Table of CHECK policies</b></p>
+<a name="idm260015730656"></a><p class="title"><b>Table&#160;1.1.&#160;Table of CHECK policies</b></p>
 <div class="table-contents"><table class="table" summary="Table of CHECK policies">
 <colgroup>
 <col>
@@ -169,17 +166,29 @@
 <td>check_division_invalid_result</td>
 <td>infinity() / infinity()</td>
 </tr>
+<tr>
+<td>Cast to</td>
+<td>Assignment</td>
+<td>allow_cast_to&lt;T&gt;</td>
+<td>T x = sf;</td>
+</tr>
+<tr>
+<td>Cast from</td>
+<td>Assignment</td>
+<td>allow_cast_from&lt;T&gt;</td>
+<td>T x; sf = x;</td>
+</tr>
 </tbody>
 </table></div>
 </div>
 <br class="table-break"><p>The policies can be combined defining classes that inherit from
         other policies. This requires some glue code in the case the policies
         combined are not 100% orthogonal, this glue is implemented
-        boost::safe_float::compose_check_policy.</p>
+        boost::safe_float::policy::compose.</p>
 <p>The following is a table of convenient combined policies already
         available in the library and their components.</p>
 <div class="table">
-<a name="idm472914260320"></a><p class="title"><b>Table&#160;1.2.&#160;Table of CHECK composed policies</b></p>
+<a name="idm260015689184"></a><p class="title"><b>Table&#160;1.2.&#160;Table of CHECK composed policies</b></p>
 <div class="table-contents"><table class="table" summary="Table of CHECK composed policies">
 <colgroup>
 <col>
@@ -233,24 +242,23 @@
 </tbody>
 </table></div>
 </div>
-<br class="table-break"><p>For combining the Policies a check_composer class is used called
-        compose_check, this class recieves the FP datatypes as first template
-        parameter and the list of policies to be composed into the new
-        policy.</p>
+<br class="table-break"><p>For combining the Policies a composer function is used called
+        policy::compose, the function receives variadic template list of policies
+        and returns a new policy type.</p>
 <p>The composed policy, will call sequentially each pre and post
         condition on each policy and return false if any check returns false,
         and true when every check returned true.</p>
 <p>The composed policies listed in previous check are defined using
-        the compose_check in the convenience header file.</p>
+        the policy::compose in the convenience header file.</p>
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="idm472914242560"></a>ERROR_HANDLING Policy classes</h4></div></div></div>
-<p>ERROR_HANDLING policies are focus in how a validation failure is
+<a name="idm260015671904"></a>Reporting classes</h4></div></div></div>
+<p>Reporting classes are focus in how a validation failure is
         notified to the user.</p>
-<p>Options are:</p>
+<p>Options available out of the box are:</p>
 <div class="itemizedlist"><ul class="itemizedlist" type="disc">
-<li class="listitem"><p>on_fail_throw : Throws an safe_float_exception when the
+<li class="listitem"><p>on_fail_throw : Throws a safe_float_exception when the
             checks fail.</p></li>
 <li class="listitem"><p>on_fail_abort : Calls std::abort() when the check
             fails.</p></li>
@@ -264,28 +272,11 @@
             safe_float into a Boost.Expected class, and return unexpected on check fail.</p></li>
 </ul></div>
 <p>Extending the list of options is as easy as defining a class
-        with the method: void report_failure(std::string&amp; message);</p>
+        with the method: static void report_failure(const std::string&amp; message);</p>
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="idm472914234624"></a>CAST Policy classes</h4></div></div></div>
-<p>CAST policies define how the safe_float instance will play with
-        other data types.</p>
-<p>Options implemented by the library are:
-        cast_wrapped_type_params, cast_to_wrapped_type, cast_both_ways,
-        no_cast.</p>
-<p>In cast_wrapped_type_params, if a operation is called with a
-        parameter of wrapped type, it is casted to safe_float and used.</p>
-<p>In cast_to_wrapped_type, a cast overload is defined to cast the
-        safe_float to its wrapped type.</p>
-<p>In cast_both_ways, both of previous casts are
-        implemented.</p>
-<p>In no_cast, nothing is casted. In this case all operations have to receive an safe_float, 
-        and the only way to construct new values is using safe_float literals "_sf", "_sd", "_sld".</p>
-</div>
-<div class="section">
-<div class="titlepage"><div><div><h4 class="title">
-<a name="idm472904777296"></a>Numeric Limits</h4></div></div></div>
+<a name="idm260015664064"></a>Numeric Limits</h4></div></div></div>
 <p>In safe_float a new specialization of numeric_limits is defined
         for each wrapped number. For most functions and constants the values
         are obtained from the original number.</p>
@@ -308,7 +299,7 @@
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="idm472904771168"></a>FENV_AVAILABLE constant</h4></div></div></div>
+<a name="idm260015658032"></a>FENV_AVAILABLE constant</h4></div></div></div>
 <p>Each CHECK policy is implemented using fenv functions and
         without using fenv functions. The selection of which implementation is
         compiled is selected by the FENV_AVAILABLE constant. This constant is

@@ -17,7 +17,7 @@
 <div class="titlepage"><div><div><h2 class="title" style="clear: both">
 <a name="safe_float.rationale"></a>Rationale</h2></div></div></div>
 <div class="qandaset">
-<a name="idm472904767008"></a><dl><dt>1. <a href="rationale.html#idm472904766752">Why to implement compose_*_policy in place of using variadic
+<a name="idm260015654288"></a><dl><dt>1. <a href="rationale.html#idm260015654032">Why to implement composer for policy in place of using variadic
           templates.</a>
 </dt></dl>
 <table border="0" width="100%" summary="Q and A Set">
@@ -26,46 +26,73 @@
 <tbody>
 <tr class="question">
 <td align="left" valign="top">
-<a name="idm472904766752"></a><a name="idm472904766496"></a><p><b>1.</b></p>
+<a name="idm260015654032"></a><a name="idm260015653776"></a><p><b>1.</b></p>
 </td>
-<td align="left" valign="top"><p>Why to implement compose_*_policy in place of using variadic
+<td align="left" valign="top"><p>Why to implement composer for policy in place of using variadic
           templates.</p></td>
 </tr>
 <tr class="answer">
 <td align="left" valign="top"></td>
-<td align="left" valign="top"><p>Variadic Templates can be used only as the last template
-          parameter and we have in mind allowing compose on at least 2 policy
-          parameters, the CHECK and the CAST.</p></td>
+<td align="left" valign="top"><p>Policies can be complex and reusable. We want to allow users to define
+          them using the using keyword for that purpose. Composer allows easily to do that.</p></td>
 </tr>
 </tbody>
 </table>
 </div>
 <div class="qandaset">
-<a name="idm472904764416"></a><dl>
+<a name="idm260015651808"></a><dl>
 <dt></dt>
-<dd><dl><dt>1.1. <a href="rationale.html#idm472904763904">Why all check individual policies derive from check_policy
-            and the compose does it too?</a>
+<dd><dl><dt>1.1. <a href="rationale.html#idm260015651296">Why not all policies derive from same class?</a>
 </dt></dl></dd>
 </dl>
 <table border="0" width="100%" summary="Q and A Set">
 <col align="left" width="1%">
 <col>
 <tbody>
-<tr class="toc"><td align="left" valign="top" colspan="2"><dl><dt>1.1. <a href="rationale.html#idm472904763904">Why all check individual policies derive from check_policy
-            and the compose does it too?</a>
+<tr class="toc"><td align="left" valign="top" colspan="2"><dl><dt>1.1. <a href="rationale.html#idm260015651296">Why not all policies derive from same class?</a>
 </dt></dl></td></tr>
 <tr class="question">
 <td align="left" valign="top">
-<a name="idm472904763904"></a><a name="idm472904763648"></a><p><b>1.1.</b></p>
+<a name="idm260015651296"></a><a name="idm260015651040"></a><p><b>1.1.</b></p>
 </td>
-<td align="left" valign="top"><p>Why all check individual policies derive from check_policy
-            and the compose does it too?</p></td>
+<td align="left" valign="top"><p>Why not all policies derive from same class?</p></td>
 </tr>
 <tr class="answer">
 <td align="left" valign="top"></td>
-<td align="left" valign="top"><p>To allow individual policies to be accepted individually
-            with no need for compose, also it simplifies very much the
-            composition.</p></td>
+<td align="left" valign="top"><p>That generate problems with inheritance rules at the composer level making some 
+            methods be reported by compiler as hidden.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="qandaset">
+<a name="idm260015648976"></a><dl>
+<dt></dt>
+<dd><dl><dt>1.1. <a href="rationale.html#idm260015648464">What is the difference between safefloat and what I can get from e.g. the Intel compiler by enabling FPEs?</a>
+</dt></dl></dd>
+</dl>
+<table border="0" width="100%" summary="Q and A Set">
+<col align="left" width="1%">
+<col>
+<tbody>
+<tr class="toc"><td align="left" valign="top" colspan="2"><dl><dt>1.1. <a href="rationale.html#idm260015648464">What is the difference between safefloat and what I can get from e.g. the Intel compiler by enabling FPEs?</a>
+</dt></dl></td></tr>
+<tr class="question">
+<td align="left" valign="top">
+<a name="idm260015648464"></a><a name="idm260015648208"></a><p><b>1.1.</b></p>
+</td>
+<td align="left" valign="top"><p>What is the difference between safefloat and what I can get from e.g. the Intel compiler by enabling FPEs?</p></td>
+</tr>
+<tr class="answer">
+<td align="left" valign="top"></td>
+<td align="left" valign="top">
+<p>In general, the main differences are Flexibility, customization of reporting, and multiplatform/compiler.</p>
+<div class="itemizedlist"><ul class="itemizedlist" type="disc">
+<li class="listitem">Flexibility: Safefloat adds more granular control than FPE. FPE affects every variable in the system the same, while safefloat can be used to enforce some checks for a subgroup of all the floating point variables in the program or library, and even set different checks for different variables.</li>
+<li class="listitem">Customization of reporting: Safefloat provides more options on how to react to failure. FPE will abort, while safefloat library provides different strategies to act when a check fails, it may be the case that you can expect a check to fail under certain conditions (exceptional behavior). An alternative would be to manually check flags after each operation, in place of doing that, safe float could throw an exception that can be handled properly. </li>
+<li class="listitem">Multiplatform/compiler: Safefloat is C++17 standard compliand and it should work in any compiler implementing that standard.</li>
+</ul></div>
+</td>
 </tr>
 </tbody>
 </table>

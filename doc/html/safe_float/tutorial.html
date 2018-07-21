@@ -41,8 +41,9 @@ int main(){
 using namespace std;
 using namespace boost::safe_float;
 try {
-    safe_float&lt;float,policy::check_addition_overflow&gt; a = numeric_limits&lt;float&gt;::max();
-    safe_float&lt;float,policy::check_addition_overflow&gt; b = a + a;
+    using sf_without_overflow = safe_float&lt;float,policy::check_addition_overflow&gt;;
+    sf_without_overflow a = numeric_limits&lt;sf_without_overflow &gt;::max();
+    sf_without_overflow b = a + a;
 } catch { const boost::safe_float_exception&amp; e) { 
     cout &lt;&lt; "safe_float required guarantees broken" &lt;&lt; endl;
 }    
@@ -58,11 +59,35 @@ return 0;
     complex checks and affect more operations. The library includes several
     common use compositions under the convenience.hpp file and it is easy to
     introduce new checks for particular purposes if needed. The complete list
-    of policies can be found in the Policies section of the
-    documentation.</p>
+    of policies can be found in the Policies section of the documentation.
+    The list of policies do not restrict to only flags in the FENV being checked, 
+    but also include policies to define how to safe_float plays along with other datatypes. 
+    For example, policy::allow_cast_to&lt;T&gt; defines if a cast to T is allowed or not. </p>
+<p>The following is an example allowing to cast from integer to safe_float 
+    and checking for overflow in additions.</p>
+<pre class="programlisting">#include &lt;iostream&gt;
+#include &lt;limits&gt;
+#include &lt;boost/safe_float.hpp&gt;
+
+int main(){
+using namespace std;
+using namespace boost::safe_float;
+using sf = safe_float&lt;float,
+                      policy::compose&lt;check_overflow&gt;,
+                      policy::allow_cast_from&lt;int&gt;
+                      &gt;;
+int i = 1;
+double d = 2.0;
+sf a{i}; //works
+sf b{d}; //fails compilation
+
+return 0;
+}</pre>
 <p>In some contexts, as real-time critical systems, the use of
     exceptions is restricted or fully deactivated. For this contexts, it is
-    useful to specify other error handling methods to be used.</p>
+    useful to specify other error handling methods to be used. For a full list
+    of reported methods and how to define a custom one, please check the Concept 
+    reporter documentation.</p>
 <p>The following is a example of how to use the library for asserting
     in place of throwing.</p>
 <pre class="programlisting">#include &lt;iostream&gt;
@@ -72,48 +97,16 @@ return 0;
 int main(){
 using namespace std;
 using namespace boost::safe_float;
-safe_float&lt;float,policy::check_overflow,policy::on_fail_assert&gt; a = numeric_limits&lt;float&gt;::max();
-safe_float&lt;float,policy::check_overflow,policy::on_fail_assert&gt; b = a + a;
+using sf_asserting_overflows=safe_float&lt;float,policy::check_overflow&lt;reporter::on_fail_assert&gt;&gt;;
+sf_asserting_overflows a = numeric_limits&lt;sf_asserting_overflows&gt;::max();
+sf_asserting_overflows b = a + a;
 
 return 0;
 }</pre>
 <p>Here, assert will be used in place of throw aborting execution and
     informing in debug mode, but having no impact at all in the release mode.
-    Other alternatives include abort_on_fail, throw_on_fail, unexpected_on_fail, and log_on_fail.</p>
-<p>Another template parameter available is the conversion (or cast)
-    policy, this is responsable of deciding how the data type will play with
-    others. The default is not interacting with any other. In some cases, we
-    would like to accept the wrapped type as parameter of the
-    operations.</p>
-<p>The following is an example allowing addition-assigment with wrapped
-    type parameter.</p>
-<pre class="programlisting">#include &lt;iostream&gt;
-#include &lt;limits&gt;
-#include &lt;boost/safe_float.hpp&gt;
-
-int main(){
-using namespace std;
-using namespace boost::safe_float;
-safe_float&lt;float,policy::check_overflow,policy::on_fail_assert,policy::accept_wrappedtype_params&gt; a = numeric_limits&lt;float&gt;::max();
-
-a += 3.14f; //ok because of accept_wrappedtype_params
-
-return 0;
-}</pre>
-<p> The opposite would be to chose policy::strict_type, which only accepts values produced using safefloat operations
-or literals constructed using the safefloat literal suffix.</p>
-<pre class="programlisting">
-include &lt;iostream&gt;
-#include &lt;limits&gt;
-#include &lt;boost/safe_float.hpp&gt;
-
-int main(){
-using namespace std;
-using namespace boost::safe_float;
-safe_float&lt;float,policy::check_overflow,policy::on_fail_assert,policy::strict_type&gt; a = numeric_limits&lt;float&gt;::max(); // fails compilation because max is not using safefloat literal suffix
-safe_float &lt;float,policy::check_overflow,policy::on_fail_assert,policy::strict_type&gt; b = 0.3_sf; //fails compilation because 0.3 is not representable in float
-safe_float &lt;float,policy::check_overflow,policy::on_fail_assert,policy::strict_type&gt; b = 0.5_sf; //constructs succesfully a safefloat of internal value 0.5f
-</pre>
+    Other alternative reporters provided include abort_on_fail, throw_on_fail, 
+    unexpected_on_fail, and log_on_fail.</p>
 </div>
 <table xmlns:rev="http://www.cs.rpi.edu/~gregod/boost/tools/doc/revision" width="100%"><tr>
 <td align="left"></td>

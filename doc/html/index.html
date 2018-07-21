@@ -19,7 +19,7 @@
 </h3></div></div>
 <div><p class="copyright">Copyright &#169; 2015-2018 Dami&#225;n Vicino</p></div>
 <div><div class="legalnotice">
-<a name="idm472914368160"></a><p><a href="http://www.boost.org/users/license.html" target="_top">BOOST
+<a name="idm260015794432"></a><p><a href="http://www.boost.org/users/license.html" target="_top">BOOST
       License</a></p>
 </div></div>
 </div></div>
@@ -28,20 +28,23 @@
 <dl>
 <dt><span class="section"><a href="index.html#safe_float.introduction">Introduction</a></span></dt>
 <dd><dl>
-<dt><span class="section"><a href="index.html#idm472914366368">Motivation</a></span></dt>
-<dt><span class="section"><a href="index.html#idm472914347888">Goals</a></span></dt>
-<dt><span class="section"><a href="index.html#idm472914340784">Scope</a></span></dt>
-<dt><span class="section"><a href="index.html#idm472914339040">Requirements</a></span></dt>
-<dt><span class="section"><a href="index.html#idm472914331392">Current state</a></span></dt>
+<dt><span class="section"><a href="index.html#idm260015792640">Motivation</a></span></dt>
+<dt><span class="section"><a href="index.html#idm260015773856">The library</a></span></dt>
+<dt><span class="section"><a href="index.html#idm260015767728">Current limitations</a></span></dt>
+<dt><span class="section"><a href="index.html#idm260015765808">Requirements</a></span></dt>
+<dt><span class="section"><a href="index.html#idm260015758448">Current limitations</a></span></dt>
 </dl></dd>
 <dt><span class="section"><a href="safe_float/tutorial.html">Tutorial</a></span></dt>
 <dt><span class="section"><a href="safe_float/notes.html">Notes</a></span></dt>
 <dt><span class="section"><a href="safe_float/concepts.html">Concepts</a></span></dt>
-<dd><dl><dt><span class="section"><a href="safe_float/concepts.html#idm472914309056">Policy classes</a></span></dt></dl></dd>
+<dd><dl>
+<dt><span class="section"><a href="safe_float/concepts.html#idm260015741824">Policy classes</a></span></dt>
+<dt><span class="section"><a href="safe_float/concepts.html#idm260015738320">Reporter classes</a></span></dt>
+</dl></dd>
 <dt><span class="section"><a href="safe_float/types.html">Types</a></span></dt>
 <dd><dl>
-<dt><span class="section"><a href="safe_float/types.html#idm472914302464">safe_float&lt;FP, CHECK, ERROR_HANDLING, CAST&gt;</a></span></dt>
-<dt><span class="section"><a href="safe_float/types.html#idm472914300864">Policy classes</a></span></dt>
+<dt><span class="section"><a href="safe_float/types.html#idm260015734720">safe_float&lt;FP, REPORTING_CHECK&gt;</a></span></dt>
+<dt><span class="section"><a href="safe_float/types.html#idm260015733376">Policy classes</a></span></dt>
 </dl></dd>
 <dt><span class="section"><a href="safe_float/rationale.html">Rationale</a></span></dt>
 <dt><span class="section"><a href="safe_float/changelog.html">Change Log</a></span></dt>
@@ -52,21 +55,21 @@
 <div class="titlepage"><div><div><h2 class="title" style="clear: both">
 <a name="safe_float.introduction"></a>Introduction</h2></div></div></div>
 <div class="toc"><dl>
-<dt><span class="section"><a href="index.html#idm472914366368">Motivation</a></span></dt>
-<dt><span class="section"><a href="index.html#idm472914347888">Goals</a></span></dt>
-<dt><span class="section"><a href="index.html#idm472914340784">Scope</a></span></dt>
-<dt><span class="section"><a href="index.html#idm472914339040">Requirements</a></span></dt>
-<dt><span class="section"><a href="index.html#idm472914331392">Current state</a></span></dt>
+<dt><span class="section"><a href="index.html#idm260015792640">Motivation</a></span></dt>
+<dt><span class="section"><a href="index.html#idm260015773856">The library</a></span></dt>
+<dt><span class="section"><a href="index.html#idm260015767728">Current limitations</a></span></dt>
+<dt><span class="section"><a href="index.html#idm260015765808">Requirements</a></span></dt>
+<dt><span class="section"><a href="index.html#idm260015758448">Current limitations</a></span></dt>
 </dl></div>
 <div class="section">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="idm472914366368"></a>Motivation</h3></div></div></div>
+<a name="idm260015792640"></a>Motivation</h3></div></div></div>
 <p>Arithmetic operations in C++ are NOT guaranteed to yield a correct
       mathematical result. For instance, the overflow on addition operation
       may produce an infinite value. Safe Float proposes implementing a
-      drop-in replacement for floating point numeric data types guaranteing
-      that, when used in expressions in a C++ program, no incorrect arithmetic
-      results will be produced without the developer awareness.</p>
+      drop-in replacement for floating point numeric data types guaranteeing
+      that, when used in expressions in a C++ program, no unexpected arithmetic
+      results will be produced silently without the developer awareness.</p>
 <p>An example of the problem:</p>
 <pre class="programlisting">#include &lt;iostream&gt;
 #include &lt;limits&gt;
@@ -83,7 +86,7 @@ return 0;
 <pre class="programlisting">b is inf</pre>
 <p>This is a convenient fallback for the overflow in some contexts,
       but an unexpected silent surprise in others. Overflow to infinite is not
-      the only surprice silently introduced by floating point operations,
+      the only surprise silently introduced by floating point operations,
       neither the most dangerous. it is actually the one most programmers care
       to check.</p>
 <p>In 1991, David Goldberg collected a list of the most common
@@ -150,6 +153,9 @@ return 0;
 <p>Since, the reliability of the results is based on the algorithms
       used, we propose letting developers declare their concerns using
       template parameters as policies.</p>
+<p> We try to provide policies for most of the dangers before mentioned. However,
+      some of the checks may be missing. To see the full list of the checks implemented by
+      safe_float please check the Policies section of the documentation. </p>
 <p>We show some usage examples below for illustration.</p>
 <pre class="programlisting">//no underflow example
 
@@ -171,82 +177,69 @@ safe_numerics&lt;double, no_rounding, abort_on_fail&gt; g = e + f ; //aborts exe
 
 //multiple conditions example
 
-safe_numerics&lt;double, BSF_COMBINE(no_rounding,no_overflow_to_infinity)&gt; h = numeric_limits&lt;double&gt;::max();
+safe_numerics&lt;double, BSF_COMBINE(no_rounding, no_overflow_to_infinity)&gt; h = numeric_limits&lt;double&gt;::max();
 
-safe_numerics&lt;double, BSF_COMBINE(no_rounding,no_overflow_to_infinity)&gt; i =  numeric_limits&lt;double&gt;::max();
+safe_numerics&lt;double, BSF_COMBINE(no_rounding, no_overflow_to_infinity)&gt; i =  numeric_limits&lt;double&gt;::max();
 
-safe_numerics&lt;double, BSF_COMBINE(no_rounding-no_overflow_to_infinity)&gt; j = h + i; // throws because of overflow to infinity.</pre>
+safe_numerics&lt;double, BSF_COMBINE(no_rounding, no_overflow_to_infinity)&gt; j = h + i; // throws because of overflow to infinity.</pre>
 <p></p>
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="idm472914347888"></a>Goals</h3></div></div></div>
+<a name="idm260015773856"></a>The library</h3></div></div></div>
 <div class="itemizedlist"><ul class="itemizedlist" type="disc">
 <li class="listitem">
-<p>Provide a drop-in replacement for Floating Point data types
+<p>Provides a drop-in replacement for native Floating Point data types
             producing one of the following outcomes for each operation:</p>
 <div class="itemizedlist"><ul class="itemizedlist" type="circle">
 <li class="listitem"><p>A valid result covering the user safety
                   definition.</p></li>
 <li class="listitem"><p>A compilation error.</p></li>
-<li class="listitem"><p>An exception communicating a safety condition was not
-                  covered or another way to inform user about the
-                  situation.</p></li>
+<li class="listitem"><p>A (customized) report of the safety condition was not
+                  covered, for example by throwing an exception or loging the violation.</p></li>
 </ul></div>
 </li>
-<li class="listitem"><p>The implementation should be flexible to let the user decide
-            what to check and how to inform when check fails.</p></li>
-<li class="listitem"><p>Rules for deciding how to interact with other data types
-            need to be defined, for example enabling/disabling casts.</p></li>
+<li class="listitem"><p>The implementation is based in user defined policies that 
+            encapsulate what to check and how to how to inform when check fails.</p></li>
 </ul></div>
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="idm472914340784"></a>Scope</h3></div></div></div>
-<p>Current implementation expects to apply the policies to the native
-      Floating Point types: float, double, long double.</p>
+<a name="idm260015767728"></a>Current limitations</h3></div></div></div>
+<p>Current implementation apply the policies to the native
+      Floating Point types: float, double, long double. The checks are limited
+      to arithmetic operators and numeric_limits is specialized safe_float</p>
 <p>Extending to support Boost.Multiprecission is planned as future
-      work.</p>
+      work. Also, we plan for future work adding support for Boost.Math and std::math.</p>
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="idm472914339040"></a>Requirements</h3></div></div></div>
+<a name="idm260015765808"></a>Requirements</h3></div></div></div>
 <p>safe_float is a headers-only library with few requirements:</p>
 <div class="itemizedlist"><ul class="itemizedlist" type="disc">
 <li class="listitem"><p>A compiler supporting C++17 standard.</p></li>
-<li class="listitem"><p>A compiler supporting pragma FENV is not required, but
-            better performance is expected when supported.</p></li>
+<li class="listitem"><p>A compiler supporting pragma FENV is not required.</p></li>
 </ul></div>
 <div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem">
 <p>For building examples and tests B2 is used.</p>
 <p>Alternatively support for cmake is also offered. </p>
 </li></ul></div>
 <div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p>Some examples may have require extra dependencies from Boost,
-          including Boost.ProgramOptions, but these dependencies are not necessary for using the library.</p></li></ul></div>
+          including Boost.ProgramOptions, but these dependencies are not necessary 
+          for using the library.</p></li></ul></div>
 <div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p>Tests are implemented using Boost.Test compiled version and
           they require also Boost.MPL.</p></li></ul></div>
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="idm472914331392"></a>Current state</h3></div></div></div>
-<p>Safe float currently provides numeric_limits, and complete set of
-      check policies, including fine grain policies as
-      "check_addition_overflow" and coarse grain as "check_all". Composers for
-      policies are provided to allow the user select the kind of issues to be
-      trapped. Composed set of policies is also provided for
-      convenience.</p>
+<a name="idm260015758448"></a>Current limitations</h3></div></div></div>
 <p>B2 scripts detect if current compiler has support for FENV pragma,
-      and uses it when supported.</p>
-<p>Only one policy is implemented for cast and error_handling so
-      far.</p>
-<p>Tests are not yet complete for underflow and invalid result
-      policies. </p>
+      however, it is not detected in cmake builts, neither it is used for optimizations.</p>
 <p>FENV enabled implementation was never tested since g++ and clang++
       does not support it yet.</p>
-<p>The library was tested mostly using clang.</p>
 <p>The exception strong guarantee may have been broken in some
       places, this is a temporary problem. </p>
-<p>The throw_on_error policy is throwing always std::exception,
+<p>The throw_on_error reporter is throwing always boost::safe_float_exception,
       subclasses of it might be used in the future to provide finer grain
       catching.</p>
 </div>
